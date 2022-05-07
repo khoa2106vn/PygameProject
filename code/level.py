@@ -30,6 +30,17 @@ class Level:
         self.attackable_sprites = pygame.sprite.Group()
 
         #sprite setup
+        self.layouts = {
+            'boundary': import_csv_layout('../map/map_FloorBlocks.csv'),
+            'grass': import_csv_layout('../map/map_Grass.csv'),
+            'object': import_csv_layout('../map/map_Objects.csv'),
+            'entities': import_csv_layout('../map/map_Entities.csv')
+        }
+
+        self.graphics = {
+            'grass': import_folder('../graphics/Grass'),
+            'objects': import_folder('../graphics/objects'),
+        }
         self.create_map()
 
         #particles
@@ -38,6 +49,11 @@ class Level:
 
         #upgrade
         self.upgrade = Upgrade(self.player)
+
+        #monster spawn 
+        self.monster_spawn_radius = 500
+        self.monster_spawn_cd = 4000
+        self.monster_spawn_time = 0
 
     def create_magic(self, style, strength, cost):
         if style == 'heal':
@@ -78,23 +94,42 @@ class Level:
                         else:
                             target_sprite.get_damage(self.player, attack_sprite.sprite_type)
 
+    def spawn_monster(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.monster_spawn_time >= self.monster_spawn_cd:
+    
+            x = randint(8,85) * TILESIZE
+            y = randint(8,53) * TILESIZE
+
+            enemy_vec = pygame.math.Vector2(x,y)
+            player_vec = pygame.math.Vector2(self.player.rect.center)
+            distance = (player_vec - enemy_vec).magnitude()
+            if distance >= 700:
+
+                monsters = randint(389,392)
+                if monsters == 390: monster_name = 'bamboo'
+                elif monsters == 391: monster_name = 'spirit'
+                elif monsters == 392: monster_name = 'raccoon'
+                else: monster_name = 'squid'
+                if monster_name == 'raccoon':
+                    x = randint(7,23) * TILESIZE
+                    y = randint(7,12) * TILESIZE
+                self.monster_spawn_time = pygame.time.get_ticks()
+                Enemy(
+                    monster_name, 
+                    (x,y), 
+                    [self.visible_sprites, self.attackable_sprites],
+                    self.obstacle_sprites,
+                    self.damage_player,
+                    self.trigger_death_particles,
+                    self.add_exp
+                )
+
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
 
     def create_map(self):
-        layouts = {
-            'boundary': import_csv_layout('../map/map_FloorBlocks.csv'),
-            'grass': import_csv_layout('../map/map_Grass.csv'),
-            'object': import_csv_layout('../map/map_Objects.csv'),
-            'entities': import_csv_layout('../map/map_Entities.csv')
-        }
-
-        graphics = {
-            'grass': import_folder('../graphics/Grass'),
-            'objects': import_folder('../graphics/objects'),
-        }
-
-        for style, layout in layouts.items():
+        for style, layout in self.layouts.items():
             for row_index,row in enumerate(layout):
                 for col_index, col in enumerate(row):
                     if col !='-1':
@@ -102,14 +137,14 @@ class Level:
                         y = row_index * TILESIZE
                         if style == 'boundary':
                             Tile((x,y),[self.obstacle_sprites], 'invisible')
-                        if style == 'grass':
-                            random_grass_image = choice(graphics['grass'])
+                        # if style == 'grass':
+                        #     random_grass_image = choice(self.graphics['grass'])
 
-                            Tile((x,y),[self.visible_sprites,self.obstacle_sprites, self.attackable_sprites], 'grass', random_grass_image)
-                            pass
-                        if style == 'object':
-                            surf = graphics['objects'][int(col)]
-                            Tile((x,y),[self.visible_sprites,self.obstacle_sprites], 'object', surf)
+                        #     Tile((x,y),[self.visible_sprites,self.obstacle_sprites, self.attackable_sprites], 'grass', random_grass_image)
+                        #     pass
+                        # if style == 'object':
+                        #     surf = self.graphics['objects'][int(col)]
+                        #     Tile((x,y),[self.visible_sprites,self.obstacle_sprites], 'object', surf)
 
                         if style == 'entities':
                             if col == '394':
@@ -121,20 +156,20 @@ class Level:
                                     self.destroy_attack,
                                     self.create_magic,
                                     )
-                            else:
-                                if col == '390': monster_name = 'bamboo'
-                                elif col == '391': monster_name = 'spirit'
-                                elif col == '392': monster_name = 'raccoon'
-                                else: monster_name = 'squid'
-                                Enemy(
-                                    monster_name, 
-                                    (x,y), 
-                                    [self.visible_sprites, self.attackable_sprites],
-                                    self.obstacle_sprites,
-                                    self.damage_player,
-                                    self.trigger_death_particles,
-                                    self.add_exp
-                                )
+                            # else:
+                            #     if col == '390': monster_name = 'bamboo'
+                            #     elif col == '391': monster_name = 'spirit'
+                            #     elif col == '392': monster_name = 'raccoon'
+                            #     else: monster_name = 'squid'
+                            #     Enemy(
+                            #         monster_name, 
+                            #         (x,y), 
+                            #         [self.visible_sprites, self.attackable_sprites],
+                            #         self.obstacle_sprites,
+                            #         self.damage_player,
+                            #         self.trigger_death_particles,
+                            #         self.add_exp
+                            #     )
 
     def run(self):
         self.visible_sprites.custom_draw(self.player)
@@ -146,6 +181,7 @@ class Level:
             self.player_attack_logic()
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
+            self.spawn_monster()
 
     def add_exp(self, amount):
         self.player.exp += amount
