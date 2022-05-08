@@ -13,6 +13,7 @@ from weapon import Weapon
 from ui import UI
 from enemy import Enemy
 from upgrade import Upgrade
+from Spark import *
 
 class Level:
     def __init__(self):
@@ -61,6 +62,7 @@ class Level:
         self.screen_shake = 0
         self.render_offset = [0, 0]
 
+        self.player_attacked = 0
 
     def create_magic(self, style, strength, cost):
         if style == 'heal':
@@ -82,7 +84,8 @@ class Level:
             #spawn particles
             self.animation_player.create_particles(attack_type, self.player.rect.center, [self.visible_sprites])
             self.screen_shake = 30
-    
+            self.player_attacked = 10
+           
     def trigger_death_particles(self, pos, particle_type):
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
 
@@ -187,7 +190,7 @@ class Level:
 
 
     def run(self):
-        self.visible_sprites.custom_draw(self.player, self.render_offset)
+        self.visible_sprites.custom_draw(self.player, self.render_offset, self.player_attacked)
         self.ui.display(self.player, self.difficulty)
         if self.game_paused:
             self.upgrade.display()
@@ -209,6 +212,8 @@ class Level:
             if self.screen_shake == 0:
                 self.render_offset[0] = 0
                 self.render_offset[1] = 0
+            if self.player_attacked > 0:
+                self.player_attacked -= 1
 
             self.player_attack_logic()
             self.visible_sprites.update()
@@ -236,10 +241,10 @@ class YSortCameraGroup(pygame.sprite.Group):
         #floor creation
         self.floor_sur = pygame.image.load('../graphics/tilemap/ground.png').convert()
         self.floor_rect = self.floor_sur.get_rect(topleft = (0,0))
-        
+        self.sparks = []
 
 
-    def custom_draw(self, player, render_offset):
+    def custom_draw(self, player, render_offset, player_attacked):
         #get offset from player
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
@@ -255,6 +260,18 @@ class YSortCameraGroup(pygame.sprite.Group):
                 mask = [(-x + offset_position[0] + 62, -y + offset_position[1] + 115) for x,y in mask]
                 pygame.draw.polygon(self.display_surface, pygame.Color(0,0,0), mask)
             self.display_surface.blit(sprite.image, offset_position + render_offset)
+            if player_attacked > 0 and hasattr(sprite, 'is_player'):
+                self.sparks.append(Spark([randint(0,20) - 10 + offset_position[0] + 32, randint(0,20) - 10 + offset_position[1] + 32], math.radians(random.randint(0, 360)), random.randint(3, 7), (136, 8, 8), 3))
+    
+        
+
+        for i, spark in sorted(enumerate(self.sparks), reverse=True):
+                spark.move(1)
+                spark.draw(self.display_surface)
+                if not spark.alive:
+                    self.sparks.pop(i)
+
+
 
     def enemy_update(self, player):
         enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']

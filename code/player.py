@@ -67,6 +67,7 @@ class Player(Entity):
         self.dash = Dash(2.5, 1)
         self.velocity = 80
 
+        self.is_player = True
 
     def task(self):
         self.can_dash = False
