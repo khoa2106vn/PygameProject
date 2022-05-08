@@ -35,21 +35,6 @@ class Entity(pygame.sprite.Sprite):
                     if self.direction.y < 0: #go up
                         self.hitbox.top = sprite.hitbox.bottom
 
-    def spawn_collision(self, direction):
-        for sprite in self.obstacle_sprites:
-            if sprite.hitbox.colliderect(self.hitbox):
-                if self.direction.x > 0: #go right
-                    self.hitbox.right = sprite.hitbox.left
-                if self.direction.x < 0: #go left
-                    self.hitbox.left = sprite.hitbox.right
-
-        for sprite in self.obstacle_sprites:
-            if sprite.hitbox.colliderect(self.hitbox):
-                if self.direction.y > 0: #go down
-                    self.hitbox.bottom = sprite.hitbox.top
-                if self.direction.y < 0: #go up
-                    self.hitbox.top = sprite.hitbox.bottom
-
     def wave_value(self):
         value = sin(pygame.time.get_ticks())
         if value >= 0: 

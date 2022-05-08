@@ -1,5 +1,4 @@
-from turtle import width
-from numpy import full
+import math
 import pygame
 from settings import *
 
@@ -113,7 +112,7 @@ class Item:
         value_rect = pygame.Rect(top[0] - 15, bottom[1] - relative_number, 30, 10)
 
         #current values
-        curr_surf = self.font.render(f'{int(current_values)}', False, color)
+        curr_surf = self.font.render(f'{math.ceil(current_values)}', False, color)
         curr_rect = curr_surf.get_rect(midright = value_rect.midleft - pygame.math.Vector2(10,0))
 
 
@@ -129,6 +128,10 @@ class Item:
             player.exp -= player.upgrade_cost[upgrade_attribute]
             player.stats[upgrade_attribute] *= 1.2
             player.upgrade_cost[upgrade_attribute] *= 1.4
+            
+            if upgrade_attribute == 'speed':
+                player.attack_cooldown /= player.stats['speed']
+                pass
 
         if player.stats[upgrade_attribute] > player.max_stats[upgrade_attribute]:
             player.stats[upgrade_attribute] = player.max_stats[upgrade_attribute]

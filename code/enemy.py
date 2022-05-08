@@ -4,12 +4,13 @@ from entity import Entity
 from support import *
 
 class Enemy(Entity):
-    def __init__(self,monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles, add_exp):
+    def __init__(self,monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles, add_exp, difficulty):
 
         #general setup
         super().__init__(groups)
         self.sprite_type = 'enemy'
         self.status = 'idle'
+        self.difficulty = difficulty
     
         #graphics setup
         self.import_graphics(monster_name)
@@ -26,10 +27,14 @@ class Enemy(Entity):
         if monster_name == 'raccoon': self.hitbox = self.rect.inflate(-50,-75)
         monster_info = monster_data[self.monster_name]
         self.health = monster_info['health']
-        self.exp = monster_info['exp']
+        self.exp = monster_info['exp'] * self.difficulty
         self.speed = monster_info['speed']
         self.attack_damage = monster_info['damage']
-        self.resistance = monster_info['resistance']
+        self.resistance = monster_info['resistance'] * self.difficulty /1.5
+        if difficulty == 2:
+            self.health = monster_info['health'] * self.difficulty / 2 
+            self.speed = monster_info['speed']* (self.difficulty / 2)
+            self.attack_damage = monster_info['damage'] * (self.difficulty / 2)
         self.attack_radius = monster_info['attack_radius']
         self.notice_radius = monster_info['notice_radius']
         self.attack_type = monster_info['attack_type']

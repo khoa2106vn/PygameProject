@@ -1,4 +1,5 @@
 import pygame
+from Timer import Timer
 from debug import debug
 from magic import MagicPlayer
 from particles import AnimationPlayer
@@ -19,6 +20,7 @@ class Level:
         self.game_paused = False
         self.ui = UI()
         self.display_surface = pygame.display.get_surface()
+        self.timer = Timer()
 
         #sprite group
         self.visible_sprites = YSortCameraGroup()
@@ -50,10 +52,15 @@ class Level:
         #upgrade
         self.upgrade = Upgrade(self.player)
 
-        #monster spawn 
+        #monster spawn
+        self.difficulty = 1 
         self.monster_spawn_radius = 500
-        self.monster_spawn_cd = 4000
+        self.monster_spawn_cd = 800 / self.difficulty
         self.monster_spawn_time = 0
+
+        self.screen_shake = 0
+        self.render_offset = [0, 0]
+
 
     def create_magic(self, style, strength, cost):
         if style == 'heal':
@@ -74,6 +81,7 @@ class Level:
             self.player.hurt_time = pygame.time.get_ticks()
             #spawn particles
             self.animation_player.create_particles(attack_type, self.player.rect.center, [self.visible_sprites])
+            self.screen_shake = 30
     
     def trigger_death_particles(self, pos, particle_type):
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
@@ -98,18 +106,18 @@ class Level:
         current_time = pygame.time.get_ticks()
         if current_time - self.monster_spawn_time >= self.monster_spawn_cd:
     
-            x = randint(8,85) * TILESIZE
-            y = randint(8,53) * TILESIZE
+            x = randint(8,80) * TILESIZE
+            y = randint(8,52) * TILESIZE
 
             enemy_vec = pygame.math.Vector2(x,y)
             player_vec = pygame.math.Vector2(self.player.rect.center)
             distance = (player_vec - enemy_vec).magnitude()
-            if distance >= 700:
+            if distance >= 2000:
 
                 monsters = randint(389,392)
                 if monsters == 390: monster_name = 'bamboo'
                 elif monsters == 391: monster_name = 'spirit'
-                elif monsters == 392: monster_name = 'raccoon'
+                # elif monsters == 392: monster_name = 'raccoon'
                 else: monster_name = 'squid'
                 if monster_name == 'raccoon':
                     x = randint(7,23) * TILESIZE
@@ -122,8 +130,14 @@ class Level:
                     self.obstacle_sprites,
                     self.damage_player,
                     self.trigger_death_particles,
-                    self.add_exp
+                    self.add_exp,
+                    self.difficulty
                 )
+
+    def increase_difficulty(self, time):
+        self.difficulty = float(time / 60)
+        if self.difficulty < 1:
+            self.difficulty = 1 
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
@@ -171,18 +185,37 @@ class Level:
                             #         self.add_exp
                             #     )
 
+
     def run(self):
-        self.visible_sprites.custom_draw(self.player)
-        self.ui.display(self.player)
+        self.visible_sprites.custom_draw(self.player, self.render_offset)
+        self.ui.display(self.player, self.difficulty)
         if self.game_paused:
             self.upgrade.display()
+            if self.timer.running == True:
+                self.timer.pause()
         else:
             #update and draw
+            if not self.timer.running:
+                self.timer.resume()
+            self.timer.update()
+
+            if self.screen_shake > 0:
+                self.screen_shake -= 1
+
+            if self.screen_shake:
+                self.render_offset[0] = randint(0, 14) - 8
+                self.render_offset[1] = randint(0, 14) - 8
+            
+            if self.screen_shake == 0:
+                self.render_offset[0] = 0
+                self.render_offset[1] = 0
+
             self.player_attack_logic()
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.spawn_monster()
-
+            self.increase_difficulty(self.timer.get()/1000)
+            
     def add_exp(self, amount):
         self.player.exp += amount
     
@@ -206,17 +239,22 @@ class YSortCameraGroup(pygame.sprite.Group):
         
 
 
-    def custom_draw(self, player):
+    def custom_draw(self, player, render_offset):
         #get offset from player
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
 
         floor_offset_pos = self.floor_rect.topleft - self.offset
-        self.display_surface.blit(self.floor_sur, floor_offset_pos)
+        self.display_surface.blit(self.floor_sur, floor_offset_pos + render_offset)
 
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
-            offset_postion = sprite.rect.topleft - self.offset
-            self.display_surface.blit(sprite.image, offset_postion)
+            offset_position = sprite.rect.topleft - self.offset
+            if hasattr(sprite, 'health'):
+                # pygame.draw.circle(self.display_surface, UI_BORDER_COLOR, offset_postion + [32,57], 20)
+                mask = pygame.mask.from_surface(sprite.image).outline()
+                mask = [(-x + offset_position[0] + 62, -y + offset_position[1] + 115) for x,y in mask]
+                pygame.draw.polygon(self.display_surface, pygame.Color(0,0,0), mask)
+            self.display_surface.blit(sprite.image, offset_position + render_offset)
 
     def enemy_update(self, player):
         enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']

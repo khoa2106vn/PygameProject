@@ -3,6 +3,7 @@ from settings import *
 from support import import_folder
 import math
 from entity import Entity
+from Dashing import *
 
 class Player(Entity):
     def __init__(self,pos,groups, obstacle_sprites, create_attack, destroy_attack, create_magic):
@@ -14,11 +15,14 @@ class Player(Entity):
         #graphics setup
         self.import_player_assets()
         self.status = 'down'
+        self.display_surface = pygame.display.get_surface()
+        #task
+        self.list = []
+        self.loop = False
 
         #movement
 
         self.attacking = False
-        self.attack_cooldown = 400
         self.attack_time = None
         self.obstacle_sprites = obstacle_sprites
 
@@ -41,13 +45,15 @@ class Player(Entity):
 
         #stats
         self.stats = {'health': 100,'energy':60,'attack': 10,'magic': 4,'speed': 5}
-        self.max_stats = {'health': 1000, 'energy': 1000, 'attack': 400, 'magic' : 100, 'speed': 10}
+        self.max_stats = {'health': 1000, 'energy': 1000, 'attack': 400, 'magic' : 100, 'speed': 15}
         self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 200, 'magic' : 200, 'speed':1000}
         self.health = self.stats['health']
         self.energy = self.stats['energy']
-        self.exp = 0
-        self.speed = self.stats['speed']
+        self.exp = 1000000
+        self.speed = float(self.stats['speed'])
         self.recovery_rate = 0.008 * self.stats['magic']
+        self.attack_cooldown = 400
+
 
         #invincibility timer
         self.vulnerable = True
@@ -57,6 +63,13 @@ class Player(Entity):
         #import sounds
         self.weapon_attack_sound = pygame.mixer.Sound('../audio/sword.wav')
         self.weapon_attack_sound.set_volume(0.05)
+
+        self.dash = Dash(2.5, 1)
+        self.velocity = 80
+
+
+    def task(self):
+        self.can_dash = False
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -79,6 +92,7 @@ class Player(Entity):
             self.status = 'left'
         else:
             self.direction.x = 0
+
 
         #attack input
         if keys[pygame.K_z] and not self.attacking:
@@ -132,7 +146,7 @@ class Player(Entity):
             if current_time - self.attack_time >= self.attack_cooldown + weapon_data[self.weapon]['cooldown']:
                 self.attacking = False
                 self.destroy_attack()
-        
+
         if not self.can_switch_weapon:
             if current_time - self.weapon_switch_time >= self.switch_duration_cooldown:
                 self.can_switch_weapon = True 
@@ -163,8 +177,8 @@ class Player(Entity):
                 self.status = self.status + '_idle'
         
         if self.attacking:
-            self.direction.x = 0
-            self.direction.y = 0
+            # self.direction.x = 0
+            # self.direction.y = 0
             if not 'attack' in self.status:
                 if 'idle' in self.status:
                     #overwrite idle
@@ -222,5 +236,6 @@ class Player(Entity):
         self.animate()
         self.move(self.stats['speed'])
         self.energy_recovery()
+ 
 
     
