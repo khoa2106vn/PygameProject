@@ -8,12 +8,13 @@ from settings import *
 from tile import Tile
 from player import Player
 from support import *
-from random import choice, randint
+from random import choice, randint, random
 from weapon import Weapon
 from ui import UI
 from enemy import Enemy
 from upgrade import Upgrade
 from Spark import *
+from Item import *
 
 class Level:
     def __init__(self):
@@ -65,6 +66,9 @@ class Level:
         self.player_attacked = 0
         self.hit_sound = pygame.mixer.Sound('../audio/Hit4.wav')
         self.hit_sound.set_volume(0.2)
+        self.paused_upgrade = False
+        self.game_start = False
+        self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
 
     def create_magic(self, style, strength, cost):
         if style == 'heal':
@@ -86,11 +90,16 @@ class Level:
             #spawn particles
             self.animation_player.create_particles(attack_type, self.player.rect.center, [self.visible_sprites])
             self.screen_shake = 30
+            self.screen_shake_int = 14
+            self.screen_shake_div= 8
             self.player_attacked = 10
             self.hit_sound.play()
            
     def trigger_death_particles(self, pos, particle_type):
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
+        c = random.random()
+        if c < 0.25:
+            Item('sushi', pos , [self.visible_sprites])
 
 
     def player_attack_logic(self):
@@ -137,7 +146,7 @@ class Level:
                     self.damage_player,
                     self.trigger_death_particles,
                     self.add_exp,
-                    self.difficulty
+                    self.difficulty,
                 )
 
     def increase_difficulty(self, time):
@@ -175,6 +184,7 @@ class Level:
                                     self.create_attack, 
                                     self.destroy_attack,
                                     self.create_magic,
+                                    self.visible_sprites
                                     )
                             # else:
                             #     if col == '390': monster_name = 'bamboo'
@@ -195,8 +205,8 @@ class Level:
             self.screen_shake -= 1
 
         if self.screen_shake:
-            self.render_offset[0] = randint(0, 14) - 8
-            self.render_offset[1] = randint(0, 14) - 8
+            self.render_offset[0] = randint(0, self.screen_shake_int) - self.screen_shake_div
+            self.render_offset[1] = randint(0, self.screen_shake_int) - self.screen_shake_div
             
         if self.screen_shake == 0:
             self.render_offset[0] = 0
@@ -204,10 +214,12 @@ class Level:
         if self.player_attacked > 0:
             self.player_attacked -= 1
 
+
     def run(self):
         self.visible_sprites.custom_draw(self.player, self.render_offset, self.player_attacked)
-        self.ui.display(self.player, self.difficulty)
-        if self.game_paused:
+        if self.timer.started == True:
+            self.ui.display(self.player, self.difficulty)
+        if self.game_paused and self.paused_upgrade:
             self.upgrade.display()
             if self.timer.running == True:
                 self.timer.pause()
@@ -215,7 +227,10 @@ class Level:
             #update and draw
             if not self.timer.running:
                 self.timer.resume()
-            self.timer.update()
+            if self.timer.started == False:
+                self.timer.pause()
+            if self.timer.started == True:
+                self.timer.update()
             self.check_screen_shake()
             self.player_attack_logic()
             self.visible_sprites.update()
@@ -228,6 +243,10 @@ class Level:
     
     def toggle_menu(self):
         self.game_paused = not self.game_paused
+        self.paused_upgrade = True
+
+    def menu_start(self):
+        self.game_paused = True
 
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -267,17 +286,15 @@ class YSortCameraGroup(pygame.sprite.Group):
                 self.s.fill((0,0,0,0))
                 pygame.draw.polygon(self.s, pygame.Color(0,0,0), mask)
                 
-                self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0], offset_position[1] + 64))
+                self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] + render_offset[0], offset_position[1] + 64 + render_offset[0]))
 
-            if hasattr(sprite, 'weapon_c'):
+            if hasattr(sprite, 'weapon_c') and player.status != 'up_attack' and player.status != 'down_attack':
                 mask = pygame.mask.from_surface(sprite.image).outline()
                 mask = [(x, y) for x,y in mask]
                 self.s.fill((0,0,0,0))
                 pygame.draw.polygon(self.s, pygame.Color(0,0,0), mask)
-                self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] , offset_position[1] - 8))
+                self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] + render_offset[0] , offset_position[1] - 8 + render_offset[1]))
             self.display_surface.blit(sprite.image, offset_position + render_offset)
-            if player_attacked > 0 and hasattr(sprite, 'is_player'):
-                self.sparks.append(Spark([randint(0,20) - 10 + offset_position[0] + 32, randint(0,20) - 10 + offset_position[1] + 32], math.radians(random.randint(0, 360)), random.randint(3, 7), (136, 8, 8), 3))
     
         
 

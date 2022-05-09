@@ -6,7 +6,8 @@ class Timer:
     def __init__(self):
         self.accumulated_time = 0
         self.start_time = pygame.time.get_ticks()
-        self.running = True
+        self.started = False
+        self.running = False
         self.display_surface = pygame.display.get_surface()
         self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
 

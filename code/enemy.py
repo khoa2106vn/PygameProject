@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from entity import Entity
 from support import *
+import Item
 
 class Enemy(Entity):
     def __init__(self,monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles, add_exp, difficulty):
@@ -11,6 +12,7 @@ class Enemy(Entity):
         self.sprite_type = 'enemy'
         self.status = 'idle'
         self.difficulty = difficulty
+        self.groups_x = groups
     
         #graphics setup
         self.import_graphics(monster_name)
@@ -141,6 +143,7 @@ class Enemy(Entity):
             self.trigger_death_particles(self.rect.center, self.monster_name)
             self.add_exp(self.exp)
             self.death_sound.play()
+
 
     def hit_reaction(self):
         if not self.vulnerable:
