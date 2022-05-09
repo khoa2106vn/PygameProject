@@ -15,10 +15,9 @@ class Enemy(Entity):
         #graphics setup
         self.import_graphics(monster_name)
         self.image = self.animations[self.status][self.frame_index]
-        self. rect = self.image.get_rect(topleft = pos)
+        self.rect = self.image.get_rect(topleft = pos)
 
         #movement
-        self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(0, -10)
         self.obstacle_sprites = obstacle_sprites
 

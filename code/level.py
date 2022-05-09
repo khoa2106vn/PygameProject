@@ -63,6 +63,8 @@ class Level:
         self.render_offset = [0, 0]
 
         self.player_attacked = 0
+        self.hit_sound = pygame.mixer.Sound('../audio/Hit4.wav')
+        self.hit_sound.set_volume(0.2)
 
     def create_magic(self, style, strength, cost):
         if style == 'heal':
@@ -85,6 +87,7 @@ class Level:
             self.animation_player.create_particles(attack_type, self.player.rect.center, [self.visible_sprites])
             self.screen_shake = 30
             self.player_attacked = 10
+            self.hit_sound.play()
            
     def trigger_death_particles(self, pos, particle_type):
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
@@ -187,7 +190,19 @@ class Level:
                             #         self.trigger_death_particles,
                             #         self.add_exp
                             #     )
+    def check_screen_shake(self):
+        if self.screen_shake > 0:
+            self.screen_shake -= 1
 
+        if self.screen_shake:
+            self.render_offset[0] = randint(0, 14) - 8
+            self.render_offset[1] = randint(0, 14) - 8
+            
+        if self.screen_shake == 0:
+            self.render_offset[0] = 0
+            self.render_offset[1] = 0
+        if self.player_attacked > 0:
+            self.player_attacked -= 1
 
     def run(self):
         self.visible_sprites.custom_draw(self.player, self.render_offset, self.player_attacked)
@@ -201,20 +216,7 @@ class Level:
             if not self.timer.running:
                 self.timer.resume()
             self.timer.update()
-
-            if self.screen_shake > 0:
-                self.screen_shake -= 1
-
-            if self.screen_shake:
-                self.render_offset[0] = randint(0, 14) - 8
-                self.render_offset[1] = randint(0, 14) - 8
-            
-            if self.screen_shake == 0:
-                self.render_offset[0] = 0
-                self.render_offset[1] = 0
-            if self.player_attacked > 0:
-                self.player_attacked -= 1
-
+            self.check_screen_shake()
             self.player_attack_logic()
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
@@ -242,6 +244,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.floor_sur = pygame.image.load('../graphics/tilemap/ground.png').convert()
         self.floor_rect = self.floor_sur.get_rect(topleft = (0,0))
         self.sparks = []
+        self.s = pygame.Surface((64,64), pygame.SRCALPHA)
+        self.s.set_alpha(128)
 
 
     def custom_draw(self, player, render_offset, player_attacked):
@@ -256,9 +260,21 @@ class YSortCameraGroup(pygame.sprite.Group):
             offset_position = sprite.rect.topleft - self.offset
             if hasattr(sprite, 'health'):
                 # pygame.draw.circle(self.display_surface, UI_BORDER_COLOR, offset_postion + [32,57], 20)
+        
+
                 mask = pygame.mask.from_surface(sprite.image).outline()
-                mask = [(-x + offset_position[0] + 62, -y + offset_position[1] + 115) for x,y in mask]
-                pygame.draw.polygon(self.display_surface, pygame.Color(0,0,0), mask)
+                mask = [(x, y) for x,y in mask]
+                self.s.fill((0,0,0,0))
+                pygame.draw.polygon(self.s, pygame.Color(0,0,0), mask)
+                
+                self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0], offset_position[1] + 64))
+
+            if hasattr(sprite, 'weapon_c'):
+                mask = pygame.mask.from_surface(sprite.image).outline()
+                mask = [(x, y) for x,y in mask]
+                self.s.fill((0,0,0,0))
+                pygame.draw.polygon(self.s, pygame.Color(0,0,0), mask)
+                self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] , offset_position[1] - 8))
             self.display_surface.blit(sprite.image, offset_position + render_offset)
             if player_attacked > 0 and hasattr(sprite, 'is_player'):
                 self.sparks.append(Spark([randint(0,20) - 10 + offset_position[0] + 32, randint(0,20) - 10 + offset_position[1] + 32], math.radians(random.randint(0, 360)), random.randint(3, 7), (136, 8, 8), 3))
