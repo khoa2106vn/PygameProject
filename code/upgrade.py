@@ -23,6 +23,8 @@ class Upgrade:
         self.selection_index = 0
         self.selection_time = None
         self.can_move = True
+        self.move_fx = pygame.mixer.Sound('../audio/Menu1.wav')
+        self.move_fx.set_volume(0.3)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -30,10 +32,12 @@ class Upgrade:
         if self.can_move:
             if keys[pygame.K_RIGHT] and self.selection_index < self.attribute_nr - 1:
                 self.selection_index += 1
+                self.move_fx.play()
                 self.can_move = False
                 self.selection_time = pygame.time.get_ticks()
             elif keys [pygame.K_LEFT] and self.selection_index >= 1:
                 self.selection_index -= 1
+                self.move_fx.play()
                 self.can_move = False
                 self.selection_time = pygame.time.get_ticks()
 
@@ -83,6 +87,11 @@ class Item:
         self.rect = pygame.Rect(l, t, w, h)
         self.index = index
         self.font = font
+        self.up = pygame.mixer.Sound('../audio/Gold1.wav')
+        self.up.set_volume(0.3)
+        self.c_up = pygame.mixer.Sound('../audio/Menu12.wav')
+        self.c_up.set_volume(0.3)
+
 
     def display_names(self, surface, name, cost, selected):
         color = TEXT_COLOR_SELECTED if selected else TEXT_COLOR
@@ -125,13 +134,19 @@ class Item:
         upgrade_attribute = list(player.stats.keys())[self.index]
 
         if player.exp >= player.upgrade_cost[upgrade_attribute] and player.stats[upgrade_attribute] < player.max_stats[upgrade_attribute]:
+            self.up.play()
             player.exp -= player.upgrade_cost[upgrade_attribute]
-            player.stats[upgrade_attribute] *= 1.2
-            player.upgrade_cost[upgrade_attribute] *= 1.4
+            if upgrade_attribute != 'speed':
+                player.stats[upgrade_attribute] *= 1.2
+                player.upgrade_cost[upgrade_attribute] *= 1.4
             
             if upgrade_attribute == 'speed':
                 player.attack_cooldown /= player.stats['speed']
+                player.stats[upgrade_attribute] *= 1.2
+                player.upgrade_cost[upgrade_attribute] *= 8
                 pass
+        else:
+            self.c_up.play()
 
         if player.stats[upgrade_attribute] > player.max_stats[upgrade_attribute]:
             player.stats[upgrade_attribute] = player.max_stats[upgrade_attribute]

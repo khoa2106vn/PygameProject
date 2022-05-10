@@ -47,7 +47,7 @@ class Player(Entity):
         #stats
         self.stats = {'health': 100,'energy':60,'attack': 10,'magic': 4,'speed': 5}
         self.max_stats = {'health': 1000, 'energy': 1000, 'attack': 400, 'magic' : 100, 'speed': 15}
-        self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 200, 'magic' : 200, 'speed':1000}
+        self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 200, 'magic' : 200, 'speed':3000}
         self.health = self.stats['health']
         self.energy = self.stats['energy']
         self.exp = 0
@@ -64,6 +64,9 @@ class Player(Entity):
         #import sounds
         self.weapon_attack_sound = pygame.mixer.Sound('../audio/sword.wav')
         self.weapon_attack_sound.set_volume(0.05)
+        self.g_o_ft = True
+        self.game_over = pygame.mixer.Sound('../audio/GameOver.wav')
+        self.game_over.set_volume(1)
         self.dash = Dash(2.5, 1)
         self.velocity = 80
 
@@ -142,6 +145,9 @@ class Player(Entity):
     def check_death(self):
         if self.health < 0:
             title_surf = self.font.render('press enter to restart', False, (255,255,255))
+            if self.g_o_ft:
+                self.game_over.play()
+                self.g_o_ft = False
             title_rect = title_surf.get_rect(center = (650, 300))
             self.display_surface.blit(title_surf, title_rect)
             for event in pygame.event.get():
@@ -152,10 +158,18 @@ class Player(Entity):
     def item_pickup(self):
         for sprite in self.visible_sprites:
             if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'item':
-                if sprite.hitbox.colliderect(self.hitbox):
-                    sprite.pick_up_sound.play()
-                    self.health = min(self.health + 20, self.stats['health'])
-                    sprite.kill()
+                if sprite.item_name == 'sushi':
+                    if sprite.hitbox.colliderect(self.hitbox):
+                        sprite.pick_up_sound.play()
+                        self.health = min(self.health + 20, self.stats['health'])
+                        sprite.kill()
+                elif sprite.item_name == 'scroll_fire':
+                    if sprite.hitbox.colliderect(self.hitbox):
+                        sprite.pick_up_sound.play()
+                        for enemy in self.visible_sprites:
+                            if hasattr(enemy, 'sprite_type') and enemy.sprite_type == 'enemy':
+                                enemy.health = 0
+                                sprite.kill()
 
 
     def cooldowns(self):

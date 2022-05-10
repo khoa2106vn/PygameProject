@@ -10,7 +10,8 @@ class Item(Entity):
         super().__init__(groups)
         self.sprite_type = 'item'
         self.status = 'idle'
-    
+        self.item_name = item_name
+
         #graphics setup
         self.import_graphics(item_name)
         self.image = self.animations[self.status][0]

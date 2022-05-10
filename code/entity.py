@@ -1,3 +1,4 @@
+from attr import has
 import pygame
 from math import sin
 
@@ -26,15 +27,26 @@ class Entity(pygame.sprite.Sprite):
                         self.hitbox.right = sprite.hitbox.left
                     if self.direction.x < 0: #go left
                         self.hitbox.left = sprite.hitbox.right
+            for sprite in self.visible_sprites:
+                if hasattr(sprite, 'hitbox') and sprite.hitbox != self.hitbox and sprite.hitbox.colliderect(self.hitbox) and hasattr(sprite, 'health'):
+                    if self.direction.x > 0: #go right
+                        self.hitbox.right = sprite.hitbox.left
+                    if self.direction.x < 0: #go left
+                        self.hitbox.left = sprite.hitbox.right
 
         if direction == 'vertical':
             for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
+                if sprite.hitbox.colliderect(self.hitbox) :
                     if self.direction.y > 0: #go down
                         self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0: #go up
                         self.hitbox.top = sprite.hitbox.bottom
-
+            for sprite in self.visible_sprites:
+                if hasattr(sprite, 'hitbox') and sprite.hitbox != self.hitbox and sprite.hitbox.colliderect(self.hitbox) and hasattr(sprite, 'health'):
+                    if self.direction.y > 0: #go down
+                        self.hitbox.bottom = sprite.hitbox.top
+                    if self.direction.y < 0: #go up
+                        self.hitbox.top = sprite.hitbox.bottom
     def wave_value(self):
         value = sin(pygame.time.get_ticks())
         if value >= 0: 

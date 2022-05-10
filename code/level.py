@@ -15,6 +15,7 @@ from enemy import Enemy
 from upgrade import Upgrade
 from Spark import *
 from Item import *
+from gachapon import Gachapon
 
 class Level:
     def __init__(self):
@@ -53,6 +54,7 @@ class Level:
 
         #upgrade
         self.upgrade = Upgrade(self.player)
+        self.gachapon = Gachapon(self.player)
 
         #monster spawn
         self.difficulty = 1 
@@ -67,6 +69,7 @@ class Level:
         self.hit_sound = pygame.mixer.Sound('../audio/Hit4.wav')
         self.hit_sound.set_volume(0.2)
         self.paused_upgrade = False
+        self.paused_inventory = False
         self.game_start = False
         self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
 
@@ -98,8 +101,10 @@ class Level:
     def trigger_death_particles(self, pos, particle_type):
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
         c = random.random()
-        if c < 0.25:
+        if c < 0.1:
             Item('sushi', pos , [self.visible_sprites])
+        if c < 0.1:
+            Item('scroll_fire', pos, [self.visible_sprites])
 
 
     def player_attack_logic(self):
@@ -147,6 +152,7 @@ class Level:
                     self.trigger_death_particles,
                     self.add_exp,
                     self.difficulty,
+                    self.visible_sprites
                 )
 
     def increase_difficulty(self, time):
@@ -223,6 +229,10 @@ class Level:
             self.upgrade.display()
             if self.timer.running == True:
                 self.timer.pause()
+        elif self.game_paused and self.paused_inventory:
+            self.gachapon.display()
+            if self.timer.running == True:
+                self.timer.pause()
         else:
             #update and draw
             if not self.timer.running:
@@ -243,7 +253,11 @@ class Level:
     
     def toggle_menu(self):
         self.game_paused = not self.game_paused
-        self.paused_upgrade = True
+        self.paused_upgrade = not self.paused_upgrade
+
+    def toggle_inventory(self):
+        self.game_paused = not self.game_paused
+        self.paused_inventory = not self.paused_inventory
 
     def menu_start(self):
         self.game_paused = True

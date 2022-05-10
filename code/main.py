@@ -73,6 +73,9 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_TAB:
                     self.level.toggle_menu()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_i:
+                    self.level.toggle_inventory()
         if self.level.player.health < 0 and self.level.player.restart_pressed:
             self.state = 'restart'
 

@@ -5,7 +5,7 @@ from support import *
 import Item
 
 class Enemy(Entity):
-    def __init__(self,monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles, add_exp, difficulty):
+    def __init__(self,monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles, add_exp, difficulty, visible_sprites):
 
         #general setup
         super().__init__(groups)
@@ -13,6 +13,7 @@ class Enemy(Entity):
         self.status = 'idle'
         self.difficulty = difficulty
         self.groups_x = groups
+        self.visible_sprites = visible_sprites
     
         #graphics setup
         self.import_graphics(monster_name)
