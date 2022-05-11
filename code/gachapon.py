@@ -95,6 +95,10 @@ class Item:
         title_surf = self.font.render(name, False, color)
         title_rect = title_surf.get_rect(midtop = self.rect.midtop + pygame.math.Vector2(0,20))
 
+        #image
+        full_path = '../graphics/item/' + name +'/idle/0.png'
+        image_surf = pygame.image.load()
+
         #draw
         surface.blit(title_surf, title_rect)
     

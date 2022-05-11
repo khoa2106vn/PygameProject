@@ -54,7 +54,7 @@ class Level:
 
         #upgrade
         self.upgrade = Upgrade(self.player)
-        self.gachapon = Gachapon(self.player)
+
 
         #monster spawn
         self.difficulty = 1 
@@ -103,7 +103,7 @@ class Level:
         c = random.random()
         if c < 0.1:
             Item('sushi', pos , [self.visible_sprites])
-        if c < 0.1:
+        if c < 0.01:
             Item('scroll_fire', pos, [self.visible_sprites])
 
 
@@ -256,6 +256,7 @@ class Level:
         self.paused_upgrade = not self.paused_upgrade
 
     def toggle_inventory(self):
+        self.gachapon = Gachapon(self.player)
         self.game_paused = not self.game_paused
         self.paused_inventory = not self.paused_inventory
 

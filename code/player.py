@@ -47,7 +47,7 @@ class Player(Entity):
         #stats
         self.stats = {'health': 100,'energy':60,'attack': 10,'magic': 4,'speed': 5}
         self.max_stats = {'health': 1000, 'energy': 1000, 'attack': 400, 'magic' : 100, 'speed': 15}
-        self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 200, 'magic' : 200, 'speed':3000}
+        self.upgrade_cost = {'health': 1500, 'energy': 1500, 'attack': 2000, 'magic' : 2000, 'speed':3000}
         self.health = self.stats['health']
         self.energy = self.stats['energy']
         self.exp = 0
@@ -67,8 +67,7 @@ class Player(Entity):
         self.g_o_ft = True
         self.game_over = pygame.mixer.Sound('../audio/GameOver.wav')
         self.game_over.set_volume(1)
-        self.dash = Dash(2.5, 1)
-        self.velocity = 80
+
 
         self.is_player = True
         self.font = pygame.font.Font(UI_FONT, 50)
