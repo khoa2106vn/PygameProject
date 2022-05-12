@@ -10,7 +10,7 @@ class Game:
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption('Nhom 1 - Survival Project')
+        pygame.display.set_caption('Yellow Knight')
 
         self.level = Level()
 

@@ -33,10 +33,10 @@ class Enemy(Entity):
         self.speed = monster_info['speed']
         self.attack_damage = monster_info['damage']
         self.resistance = monster_info['resistance'] * self.difficulty /1.5
-        if difficulty == 2:
-            self.health = monster_info['health'] * self.difficulty / 2 
+        if difficulty > 2:
+            self.health = monster_info['health'] * self.difficulty
             self.speed = monster_info['speed']* (self.difficulty / 2)
-            self.attack_damage = monster_info['damage'] * (self.difficulty / 2)
+            self.attack_damage = monster_info['damage'] * self.difficulty
         self.attack_radius = monster_info['attack_radius']
         self.notice_radius = monster_info['notice_radius']
         self.attack_type = monster_info['attack_type']
