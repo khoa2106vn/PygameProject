@@ -1,7 +1,8 @@
 import pygame, sys
 from settings import *
 from level import Level
-
+import json
+from Highscore import Highscore
 
 class Game:
     def __init__(self):
@@ -22,6 +23,7 @@ class Game:
         self.started = False
         self.main_sound.play(loops = -1)
         self.font = pygame.font.Font(UI_FONT, 50)
+        self.font2 = pygame.font.Font(UI_FONT, 20)
         self.screen_rect = self.screen.get_rect()
         self.restart_f = False
 
@@ -58,7 +60,7 @@ class Game:
         self.level.run()
         if not self.started:
             title_surf = self.font.render('press enter to start', False, (255,255,255))
-            title_rect = title_surf.get_rect(center = (self.screen_rect.center[0], self.screen_rect.center[1] + 200))
+            title_rect = title_surf.get_rect(center = (self.screen_rect.center[0], self.screen_rect.center[1] + 120))
             self.screen.blit(title_surf, title_rect)
         pygame.display.update()
         if not self.started:
@@ -74,8 +76,8 @@ class Game:
                 if event.key == pygame.K_TAB:
                     self.level.toggle_menu()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_i:
-                    self.level.toggle_inventory()
+                if event.key == pygame.K_r:
+                    self.level.toggle_ranking()
         if self.level.player.health < 0 and self.level.player.restart_pressed:
             self.state = 'restart'
 

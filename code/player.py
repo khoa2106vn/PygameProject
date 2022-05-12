@@ -6,21 +6,21 @@ from entity import Entity
 from Dashing import *
 
 class Player(Entity):
-    def __init__(self,pos,groups, obstacle_sprites, create_attack, destroy_attack, create_magic, visible_sprites):
+    def __init__(self,pos,groups, obstacle_sprites, create_attack, destroy_attack, create_magic, visible_sprites, toggle_gachapon, timer):
         super().__init__(groups)
         self.image = pygame.image.load('../graphics/images/player.png').convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(-6 ,HITBOX_OFFSET['player'])
         self.visible_sprites = visible_sprites
+        self.timer = timer
 
         #graphics setup
         self.import_player_assets()
         self.status = 'down'
         self.display_surface = pygame.display.get_surface()
         #task
-        self.list = []
-        self.loop = False
-
+        self.sprite_type = 'player'
+        self.dead = False
         #movement
 
         self.attacking = False
@@ -72,6 +72,9 @@ class Player(Entity):
         self.is_player = True
         self.font = pygame.font.Font(UI_FONT, 50)
         self.restart_pressed = False
+
+        #gacha
+        self.toggle_gachapon = toggle_gachapon
 
     def input(self):
         if self.health > 0:
@@ -141,8 +144,18 @@ class Player(Entity):
         else:
             self.energy = self.stats['energy']
 
+    def write_to_file(self, data):
+        with open('../save/save.txt','a') as score_file:
+            score_file.write(data + '\n')
+
     def check_death(self):
         if self.health < 0:
+            self.timer.pause()
+            if self.dead == False:
+                s = int(self.timer.get()/1000)
+
+                self.write_to_file(str(s))
+                self.dead = True
             title_surf = self.font.render('press enter to restart', False, (255,255,255))
             if self.g_o_ft:
                 self.game_over.play()
@@ -169,7 +182,11 @@ class Player(Entity):
                             if hasattr(enemy, 'sprite_type') and enemy.sprite_type == 'enemy':
                                 enemy.health = 0
                                 sprite.kill()
-
+                elif sprite.item_name == 'chest':
+                    if sprite.hitbox.colliderect(self.hitbox):
+                        sprite.pick_up_sound.play()
+                        self.toggle_gachapon()
+                        sprite.kill()
 
     def cooldowns(self):
         current_time = pygame.time.get_ticks()

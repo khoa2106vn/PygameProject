@@ -1,4 +1,5 @@
 import pygame
+from Highscore import Highscore
 from Timer import Timer
 from debug import debug
 from magic import MagicPlayer
@@ -69,9 +70,11 @@ class Level:
         self.hit_sound = pygame.mixer.Sound('../audio/Hit4.wav')
         self.hit_sound.set_volume(0.2)
         self.paused_upgrade = False
-        self.paused_inventory = False
+        self.paused_gachapon = False
+        self.paused_ranking = False
         self.game_start = False
         self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
+        self.highscore = Highscore()
 
     def create_magic(self, style, strength, cost):
         if style == 'heal':
@@ -104,7 +107,8 @@ class Level:
         if c < 0.1:
             Item('sushi', pos , [self.visible_sprites])
         if c < 0.01:
-            Item('scroll_fire', pos, [self.visible_sprites])
+            choice([lambda: Item('scroll_fire', pos, [self.visible_sprites]), lambda: Item('chest', pos, [self.visible_sprites])])()
+
 
 
     def player_attack_logic(self):
@@ -190,7 +194,9 @@ class Level:
                                     self.create_attack, 
                                     self.destroy_attack,
                                     self.create_magic,
-                                    self.visible_sprites
+                                    self.visible_sprites,
+                                    self.toggle_gachapon,
+                                    self.timer
                                     )
                             # else:
                             #     if col == '390': monster_name = 'bamboo'
@@ -229,11 +235,18 @@ class Level:
             self.upgrade.display()
             if self.timer.running == True:
                 self.timer.pause()
-        elif self.game_paused and self.paused_inventory:
-            self.gachapon.display()
+        elif self.game_paused and self.paused_ranking:
+            self.highscore.display()
             if self.timer.running == True:
                 self.timer.pause()
         else:
+            if self.paused_gachapon:
+                if not self.gachapon.isdone():
+                    self.gachapon.display()
+                else:
+                    self.paused_gachapon = not self.paused_gachapon
+                if self.timer.running == True:
+                    self.timer.pause()
             #update and draw
             if not self.timer.running:
                 self.timer.resume()
@@ -247,6 +260,7 @@ class Level:
             self.visible_sprites.enemy_update(self.player)
             self.spawn_monster()
             self.increase_difficulty(self.timer.get()/1000)
+
             
     def add_exp(self, amount):
         self.player.exp += amount
@@ -254,11 +268,14 @@ class Level:
     def toggle_menu(self):
         self.game_paused = not self.game_paused
         self.paused_upgrade = not self.paused_upgrade
-
-    def toggle_inventory(self):
-        self.gachapon = Gachapon(self.player)
+    
+    def toggle_ranking(self):
         self.game_paused = not self.game_paused
-        self.paused_inventory = not self.paused_inventory
+        self.paused_ranking = not self.paused_ranking
+
+    def toggle_gachapon(self):
+        self.gachapon = Gachapon(self.player)
+        self.paused_gachapon = True
 
     def menu_start(self):
         self.game_paused = True
