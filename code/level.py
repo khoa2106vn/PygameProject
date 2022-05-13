@@ -107,7 +107,7 @@ class Level:
         c = random.random()
         if c < 0.1:
             Item('sushi', pos , [self.visible_sprites])
-        if c < 0.01:
+        if c < 0.05:
             choice([lambda: Item('scroll_fire', pos, [self.visible_sprites]), lambda: Item('chest', pos, [self.visible_sprites])])()
 
 
