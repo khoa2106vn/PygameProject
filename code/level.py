@@ -60,7 +60,7 @@ class Level:
         #monster spawn
         self.difficulty = 1 
         self.monster_spawn_radius = 500
-        self.monster_spawn_cd = 1600
+        self.monster_spawn_cd = 2600
         self.monster_spawn_time = 0
 
         self.screen_shake = 0
