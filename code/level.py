@@ -60,7 +60,7 @@ class Level:
         #monster spawn
         self.difficulty = 1 
         self.monster_spawn_radius = 500
-        self.monster_spawn_cd = 800 / self.difficulty
+        self.monster_spawn_cd = 1600
         self.monster_spawn_time = 0
 
         self.screen_shake = 0
@@ -75,6 +75,7 @@ class Level:
         self.game_start = False
         self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
         self.highscore = Highscore()
+        self.spawn_timer = 1000
 
     def create_magic(self, style, strength, cost):
         if style == 'heal':
@@ -159,10 +160,16 @@ class Level:
                     self.visible_sprites
                 )
 
+    def spawnrate(self):
+        self.spawn_timer -= 1
+        if self.spawn_timer < 0:
+            self.monster_spawn_cd = 2600 - (100* self.difficulty)
+            self.spawn_timer = 1000
     def increase_difficulty(self, time):
         self.difficulty = float(time / 60)
         if self.difficulty < 1:
-            self.difficulty = 1 
+            self.difficulty = 1
+        
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
@@ -260,6 +267,7 @@ class Level:
             self.visible_sprites.enemy_update(self.player)
             self.spawn_monster()
             self.increase_difficulty(self.timer.get()/1000)
+            self.spawnrate()
 
             
     def add_exp(self, amount):
@@ -311,22 +319,34 @@ class YSortCameraGroup(pygame.sprite.Group):
             offset_position = sprite.rect.topleft - self.offset
             if hasattr(sprite, 'health'):
                 # pygame.draw.circle(self.display_surface, UI_BORDER_COLOR, offset_postion + [32,57], 20)
-        
+                
 
                 mask = pygame.mask.from_surface(sprite.image).outline()
                 mask = [(x, y) for x,y in mask]
                 self.s.fill((0,0,0,0))
                 pygame.draw.polygon(self.s, pygame.Color(0,0,0), mask)
-                
-                self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] + render_offset[0], offset_position[1] + 64 + render_offset[0]))
+                if sprite.sprite_type == 'enemy':
+                    enemy_vec = pygame.math.Vector2(sprite.hitbox.x, sprite.hitbox.y)
+                    player_vec = pygame.math.Vector2(player.rect.center)
+                    distance = (player_vec - enemy_vec).magnitude()
+                    if distance <= 800:
+                        self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] + render_offset[0], offset_position[1] + 64 + render_offset[0]))
+                else:
+                    self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] + render_offset[0], offset_position[1] + 64 + render_offset[0]))
 
             if hasattr(sprite, 'weapon_c') and player.status != 'up_attack' and player.status != 'down_attack':
+
                 mask = pygame.mask.from_surface(sprite.image).outline()
                 mask = [(x, y) for x,y in mask]
                 self.s.fill((0,0,0,0))
                 pygame.draw.polygon(self.s, pygame.Color(0,0,0), mask)
                 self.display_surface.blit(pygame.transform.flip(self.s, False, True), (offset_position[0] + render_offset[0] , offset_position[1] - 8 + render_offset[1]))
-            self.display_surface.blit(sprite.image, offset_position + render_offset)
+            
+            if sprite.sprite_type == 'enemy':
+                if distance <= 800:
+                    self.display_surface.blit(sprite.image, offset_position + render_offset)
+            else:
+                self.display_surface.blit(sprite.image, offset_position + render_offset)
     
         
 
