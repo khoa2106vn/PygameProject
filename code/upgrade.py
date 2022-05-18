@@ -112,6 +112,11 @@ class Upgrade:
                 self.can_move = True
 
     def display(self):
+        '''
+        Chạy cả hai hàm input() và selection_cooldown
+        input : index, item 
+        output : name, value, max_value, current_value, cost 
+        '''
         self.input()
         self.selection_cooldown()
         
@@ -126,6 +131,16 @@ class Upgrade:
 
 class Item:
     def __init__(self, l, t, w, h, index, font):
+        '''
+        Attribute
+        self.rect : tạo rect cho l,t,w,h
+        self.index : tạo index
+        self.font : tạo font 
+        self.up : âm thanh item
+        self.up.set_volume : điều chỉnh độ lớn âm thanh
+        self.c_up : âm thanh menu
+        self.c_up.set_volume : điều chỉnh độ lớn âm thanh
+        '''
         self.rect = pygame.Rect(l, t, w, h)
         self.index = index
         self.font = font
@@ -140,39 +155,79 @@ class Item:
 
 
         #title
+        '''
+        title_surf : tạo title trên surface
+        title_rect : tạo rect cho title_surf
+        '''
         title_surf = self.font.render(name, False, color)
         title_rect = title_surf.get_rect(midtop = self.rect.midtop + pygame.math.Vector2(0,20))
         #cost
+        '''
+        cost_surf : viết cost lên surface
+        cost_rect : tạo rect cho cost_surf
+        '''
         cost_surf = self.font.render(f'{int(cost)}', False, color)
         cost_rect = cost_surf.get_rect(midbottom= self.rect.midbottom - pygame.math.Vector2(0,20))
 
 
         #draw
+        '''
+        surface.blit(title_surf, title_rect) : vẽ title lên màn hình game
+        surface.blit(cost_surf, cost_rect) : vẽ cost lên màn hình game
+        '''
         surface.blit(title_surf, title_rect)
         surface.blit(cost_surf, cost_rect)
 
     def display_bar(self, surface, value, max_value, selected, current_values):
         #drawing setup
+        '''
+        Hàm này dùng để vẽ thanh bar lên màn hình
+        Attribute 
+        top với bottom : xác định vị trí với pygame.math.Vector2
+        color : - input : selected
+                - output : BAR_COLOR_SELECTED hoặc BAR_COLOR
+        text_color : - input : selected
+                     - output : TEXT_COLOR_SELECTED hoặc TEXT_COLOR
+        '''
         top = self.rect.midtop + pygame.math.Vector2(0, 60)
         bottom = self.rect.midbottom - pygame.math.Vector2(0, 60)
         color = BAR_COLOR_SELECTED if selected else BAR_COLOR
         text_color = TEXT_COLOR_SELECTED if selected else TEXT_COLOR
         #bar setup
+        '''
+        full_height : set up chiều cao của thanh bar
+        relative_number : các số liên qua tới bar
+        value_rect : tạo rect cho value
+        '''
         full_height = bottom[1] - top[1]
         relative_number = (value/max_value) * full_height
         value_rect = pygame.Rect(top[0] - 15, bottom[1] - relative_number, 30, 10)
 
         #current values
+        '''
+        curr_surf : tạo current value trên surf
+        curr_rect : tạo rect cho curr_surf
+        '''
         curr_surf = self.font.render(f'{math.ceil(current_values)}', False, color)
         curr_rect = curr_surf.get_rect(midright = value_rect.midleft - pygame.math.Vector2(10,0))
 
 
-        #draw elements
+        #draw elements 
+        '''
+        Bắt đầu vẽ ra surface
+        surface.blit(curr_surf, curr_rect) : vẽ current value lên màn hình
+        '''
         pygame.draw.line(surface, color, top, bottom, 5)
         pygame.draw.rect(surface, color, value_rect)
         surface.blit(curr_surf, curr_rect)
     
-    def trigger(self, player):
+    def trigger(self, player): 
+        '''
+        Hàm này dùng để tạo sự tương tác giữa player và thanh bar thuộc tính
+        input : player.exp, player.upgrade_cost, upgrade_attribute, player.max_stat
+        output : player.stats[upgrade_attribute]
+                player.upgrade_cost[upgrade_attribute]
+        '''
         upgrade_attribute = list(player.stats.keys())[self.index]
 
         if player.exp >= player.upgrade_cost[upgrade_attribute] and player.stats[upgrade_attribute] < player.max_stats[upgrade_attribute]:
@@ -194,6 +249,9 @@ class Item:
             player.stats[upgrade_attribute] = player.max_stats[upgrade_attribute]
 
     def display(self, surface, selection_num, name, value, max_value, cost, current_values):
+        '''
+        Hàm này dùng để vẽ ra màn hình các thuộc tính của upgrade như name, cost, max_value, current_value
+        '''
         if self.index == selection_num:
             pygame.draw.rect(surface, UPGRADE_BG_COLOR_SELECTED, self.rect)
             pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 4)
