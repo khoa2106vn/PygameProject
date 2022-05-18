@@ -3,6 +3,11 @@ from support import import_folder
 from random import choice
 
 class AnimationPlayer:
+    '''
+    class dùng để tạo các particles cho hoạt ảnh của player
+    Attribute 
+        self.frame : frame của các loại hoạt ảnh magic, attacks, monster deaths, leafs
+    '''
     def __init__(self):
         self.frames = {
             # magic
@@ -40,6 +45,9 @@ class AnimationPlayer:
                 )
             }
     def reflect_images(self, frames):
+        '''
+        Hàm tạo các hình ảnh lặp lại
+        '''
         new_frames = []
         for frame in frames:
             flipped_frame = pygame.transform.flip(frame, True, False)
@@ -47,14 +55,29 @@ class AnimationPlayer:
         return new_frames
     
     def create_grass_particles(self, pos, groups):
+        '''
+        Hàm tạo hoạt ảnh của grass
+        '''
         animation_frames = choice(self.frames['leaf'])
         ParticleEffect(pos, animation_frames, groups)
 
     def create_particles(self, animation_type, pos, groups):
+        '''
+        Hàm tạo hoạt ảnh của các frames
+        '''
         animation_frames = self.frames[animation_type]
         ParticleEffect(pos, animation_frames, groups)
 
 class ParticleEffect(pygame.sprite.Sprite):
+    '''
+    class tạo các hiệu ứng đặt biệt
+    Attribute 
+        self.frame_index : cho frame index bằng 0
+        self.animation_speed : tốc độ của hoạt ảnh
+        self.frames : các hoạt ảnh frames
+        self.image : hình ảnh của frames
+        self.rect : tạo rect cho self.image
+    '''
     def __init__(self, pos, animation_frames, groups):
         self.sprite_type = 'magic'
         super().__init__(groups)
@@ -66,6 +89,9 @@ class ParticleEffect(pygame.sprite.Sprite):
 
 
     def animate(self):
+        '''
+        Hàm tạo các hoạt ảnh
+        '''
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.frames):
             self.kill()
@@ -73,4 +99,7 @@ class ParticleEffect(pygame.sprite.Sprite):
             self.image = self.frames[int(self.frame_index)]
 
     def update(self):
+        '''
+        Chạy hàm animate()
+        '''
         self.animate()

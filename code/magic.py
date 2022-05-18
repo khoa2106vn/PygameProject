@@ -4,6 +4,14 @@ from settings import *
 from random import randint
 
 class MagicPlayer:
+    '''
+    class này dùng để tạo phần sử dụng phép thuật cho player 
+    Attribute 
+        self.animation_player : hoạt ảnh của player
+        self.sound : âm thanh khi dùng magic để tấn công hoặc hồi máu
+        self.sounds['heal'].set_volume(0.05) : điều chỉnh độ lớn âm thanh 
+        self.sounds['flame'].set_volume(0.05) : điều chỉnh độ lớn âm thanh
+    '''
     def __init__(self, animation_player):
         self.animation_player = animation_player
         self.sounds ={
@@ -14,6 +22,11 @@ class MagicPlayer:
         self.sounds['flame'].set_volume(0.05)
     
     def heal(self, player, strength, cost, groups):
+        '''
+        Hàm này tạo cách sử dụng phép heal cho player 
+            input : player.energy
+            output : player.health tăng lên và self.sound['heal'].play()
+        '''
         if player.energy >= cost:
             self.sounds['heal'].play()
             player.health += strength
@@ -24,6 +37,13 @@ class MagicPlayer:
             self.animation_player.create_particles('aura', player.rect.center, groups)
 
     def flame(self, player, cost, groups):
+        '''
+        Hàm này tạo cách sử dụng phép flame cho player
+            input : player.energy
+            output : direction lúc sử dụng phép tấn công ở hướng nào
+                     tạo các particles của phép flame lên màn hình
+                     self.sound['flame'].play()
+        '''
         if player.energy >= cost:
             player.energy -= cost
             self.sounds['flame'].play()

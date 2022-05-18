@@ -2,6 +2,14 @@ import pygame
 from settings import *
 
 class Tile(pygame.sprite.Sprite):
+    '''
+    class Tile dùng để tạo tile cho game và điều chỉnh sự tương tác giữa player với tile
+    Atribute 
+        self.sprite_type : loại sprite
+        y_offset : offset của sprite_type
+        input : sprite_type
+        output : self.rect và self.hitbox
+    '''
     def __init__(self,pos,groups,sprite_type, surface = pygame.Surface((TILESIZE, TILESIZE))):
         super().__init__(groups)
 
