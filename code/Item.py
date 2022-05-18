@@ -4,6 +4,9 @@ from settings import *
 from support import *
 
 class Item(Entity):
+    '''
+    class này dùng để tạo các item và âm thanh khi nhặt item 
+    '''
     def __init__(self, item_name, pos, groups):
 
         #general setup
