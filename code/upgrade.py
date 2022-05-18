@@ -37,7 +37,6 @@ class Upgrade:
 
         #selection system
         '''
-        self.selection_index : là 
         self.selection_time : là thời gian chọn nâng cấp
         self.can_move : di chuyển 
         self.move_fx : bỏ âm thanh vào menu
@@ -83,7 +82,7 @@ class Upgrade:
         Attribute 
         self.item_list : là danh sách các item
         #horizontal position và #vertical position : tạo tương tác giữa item và player
-        #create object : để đưa item vào trong game 
+        #create object : để tạo item và đưa item vào trong game 
         '''
         self.item_list = []
 
@@ -101,6 +100,12 @@ class Upgrade:
             self.item_list.append(item)
 
     def selection_cooldown(self):
+        '''
+        Hàm này để set up thời gian chọn 
+        input : self.can_move
+        output : nếu self.can_move not True thì current_time(pygame.time.get_ticks)
+                 và nếu current_time - self.selection_time >= 150 thì self.can_move thành True
+        '''
         if not self.can_move:
             current_time = pygame.time.get_ticks()
             if current_time - self.selection_time >= 150:
