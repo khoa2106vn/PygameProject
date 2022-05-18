@@ -5,6 +5,37 @@ from support import *
 import Item
 
 class Enemy(Entity):
+    '''
+    class Enemy là class tạo ra các quái vật trong game và điều chỉnh tương tác giữa player và enemy
+    Attribute
+        self.sprite_type : sprite_type là 'enemy'
+        self.status : status là 'idle'
+        self.difficulty : độ khó của quái
+        self.visible_sprites : group các thực thể enemy trong trò chơi
+        self.import_graphics(monster_name) : đưa hình ảnh của quái vật vào game
+        self.image : tạo hình ảnh của enemy
+        self.rect : tạo rect cho enemy
+        self.hitbox : hitbox cho quái
+        self.obtacle_sprites : group các vật thể có thể cản đường người chơi 
+        self.monster_name : tên của quái vật
+           input : monster_name 
+           output : stat của monster như health, exp, speed, attack_damage, ...
+        self.can_attack : có thể tấn công
+        self.attack_time : thời gian tấn công 
+        self.attack_cooldown : khoảng thời gian nghỉ giữa các đòn tấn công
+        self.damage_player : sát thương có thể gây ra cho player
+        self.trigger_death_particles : kích hoạt khi quái bị đánh bại
+        self.add_exp : exp của quái khi chết được người chơi nhận được
+        self.vulnerable : quái có thể bị tấn công
+        self.hit_time : khoảng thời gian nghỉ khi bị tấn công
+        self.invincibility_duration : khoảng thời gian khi quái không thể bị nhận sát thương
+        self.death_sound : âm thanh khi quái chết
+        self.hit_sound = âm thanh khi quái bị đánh trúng
+        self.death_sound.set_volume : điều chỉnh đô lớn âm thanh
+        self.hit_sound.set_volume : điều chỉnh đô lớn âm thanh
+        self.attack_sound = âm thanh khi quái tấn công player
+        self.attack_sound.set_volume : điều chỉnh đô lớn âm thanh
+    '''
     def __init__(self,monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles, add_exp, difficulty, visible_sprites):
 
         #general setup
@@ -64,6 +95,11 @@ class Enemy(Entity):
 
 
     def import_graphics(self, name):
+        '''
+        Hàm này dùng để đưa hình ảnh vào game
+            input : self.animation
+            output : vẽ ra các hoạt ảnh của quái vật như idle, move hay attack
+        '''
         self.animations = {
             'idle':[],
             'move':[],
@@ -74,6 +110,11 @@ class Enemy(Entity):
             self.animations[animation] = import_folder(main_path + animation)
 
     def get_player_distance_direction(self, player):
+        '''
+        Hàm này dùng để tạo sự tương tác giữa player và quái khi hai bên va chạm nhau
+            input : distance
+            output : distance, direction
+        '''
         enemy_vec = pygame.math.Vector2(self.rect.center)
         player_vec = pygame.math.Vector2(player.rect.center)
         distance = (player_vec - enemy_vec).magnitude()
@@ -86,6 +127,11 @@ class Enemy(Entity):
         return (distance, direction)
 
     def get_status(self, player):
+        '''
+        Hàm này xuất ra trạng thái của quái
+            input : distance
+            output : trạng thái của quái
+        '''
         distance = self.get_player_distance_direction(player)[0]
 
         if distance <= self.attack_radius and self.can_attack:
@@ -98,6 +144,9 @@ class Enemy(Entity):
             self.status = 'idle'
     
     def animate(self):
+        '''
+        Hàm này dùng để tạo hoạt ảnh cho quái 
+        '''
         animation = self.animations[self.status]
 
         #loop over the frame index
@@ -119,6 +168,9 @@ class Enemy(Entity):
             self.image.set_alpha(255)
 
     def cooldowns(self):
+        '''
+        Hàm này tạo cooldown cho các đòn tấn công của quái hoặc khi quái bị tấn công 
+        '''
         current_time = pygame.time.get_ticks()
         if not self.can_attack:
             if current_time - self.attack_time >= self.attack_cooldown:
@@ -128,6 +180,12 @@ class Enemy(Entity):
                 self.vulnerable = True
 
     def get_damage(self, player, attack_type):
+        '''
+        Hàm này dùng để xuất ra những sự kiện sau khi quái bị player tấn công 
+            input : self.vulnerable
+            output : hit_sound.play()
+                     health của quái sau khi bị tấn công
+        '''
         if self.vulnerable:
             self.hit_sound.play()
             self.direction = self.get_player_distance_direction(player)[1]
@@ -139,6 +197,11 @@ class Enemy(Entity):
             self.vulnerable = False
     
     def check_death(self):
+        '''
+        Hàm này dùng để kiểm tra cái chết của quái
+            input : self.health 
+            output : chạy kill(), trigger_death_particles, add_exp và âm thanh khi quái chết đi
+        '''
         if self.health <= 0:
             self.kill()
             self.trigger_death_particles(self.rect.center, self.monster_name)
@@ -151,6 +214,12 @@ class Enemy(Entity):
             self.direction *= -self.resistance
 
     def actions(self, player):
+        '''
+        Hàm này thể hiện các hành động của quái 
+            input : self.status 
+            output : attack_sound.play()
+                     direction
+        '''
         if self.status == 'attack':
             self.attack_sound.play()
             self.attack_time = pygame.time.get_ticks()
@@ -161,6 +230,9 @@ class Enemy(Entity):
             self.direction = pygame.math.Vector2()
 
     def update(self):
+        '''
+        Chạy các hàm hit_reaction(),move(),animate(),cooldowns(),check_deck()
+        '''
         self.hit_reaction()
         self.move(self.speed)
         self.animate()
@@ -168,5 +240,8 @@ class Enemy(Entity):
         self.check_death()
 
     def enemy_update(self, player):
+        '''
+        Chạy các hàm get_status(),actions()
+        '''
         self.get_status(player)
         self.actions(player)
