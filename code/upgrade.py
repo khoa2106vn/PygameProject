@@ -6,6 +6,17 @@ class Upgrade:
     def __init__(self, player):
 
         #general setup
+        '''
+        Đây là class dùng để thiết lập cơ chế nâng cấp cho trò chơi
+        Attribute 
+        self.display_surface : Surface màn hình
+        self.player : người chơi
+        self.attribute_nr : là độ lớn các thuộc tính của người chơi
+        self.attribute_names : là tên các thuộc tính 
+        self.font : là font các thuộc tính
+        self.max_value : là chỉ số thuộc tính tối đa
+        self.current_values : là chỉ số thuộc tính hiện tại mà người chơi đang có 
+        '''
         self.display_surface = pygame.display.get_surface()
         self.player = player
         self.attribute_nr = len(player.stats)
@@ -15,11 +26,22 @@ class Upgrade:
         self.current_values = list(player.stats.values())
 
         #item creation
+        '''
+        self.height : là chiều cao của item
+        self.width : là độ rộng của item
+        self.create_item() : tạo item
+        '''
         self.height = self.display_surface.get_size()[1] * 0.8
         self.width = self.display_surface.get_size()[0] // 6
         self.create_items()
 
         #selection system
+        '''
+        self.selection_time : là thời gian chọn nâng cấp
+        self.can_move : di chuyển 
+        self.move_fx : bỏ âm thanh vào menu
+        self.move_fx.set_volume(0.3) : set độ lớn âm thanh của menu
+        '''
         self.selection_index = 0
         self.selection_time = None
         self.can_move = True
@@ -27,6 +49,12 @@ class Upgrade:
         self.move_fx.set_volume(0.3)
 
     def input(self):
+
+        '''
+        input : keys[pygame.K_RIGHT],keys[pygame.K_LEFT],keys[pygame.K_UP]
+        output : phím trái, phải để chọn các thanh nâng cấp stat của nhân vật
+                 phím trên để nâng cấp stat nếu đủ điểm
+        '''
         keys = pygame.key.get_pressed()
 
         if self.can_move:
@@ -48,6 +76,14 @@ class Upgrade:
 
 
     def create_items(self):
+
+        '''
+        Hàm này dùng để tạo item
+        Attribute 
+        self.item_list : là danh sách các item
+        #horizontal position và #vertical position : tạo tương tác giữa item và player
+        #create object : để tạo item và đưa item vào trong game 
+        '''
         self.item_list = []
 
         for item, index in enumerate(range(self.attribute_nr)):
@@ -64,6 +100,12 @@ class Upgrade:
             self.item_list.append(item)
 
     def selection_cooldown(self):
+        '''
+        Hàm này để set up thời gian chọn 
+        input : self.can_move
+        output : nếu self.can_move not True thì current_time(pygame.time.get_ticks)
+                 và nếu current_time - self.selection_time >= 150 thì self.can_move thành True
+        '''
         if not self.can_move:
             current_time = pygame.time.get_ticks()
             if current_time - self.selection_time >= 150:
