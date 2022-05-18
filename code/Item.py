@@ -48,7 +48,7 @@ class Item(Entity):
         self.animation : lấy trạng thái hình ảnh 'idle'
         main_path : đường dẫn tới ảnh của item đó
         input : animation trong self.animation.keys()
-        ouput : đưa hình ảnh và hoạt ảnh của item đó vào trong gam
+        ouput : đưa hình ảnh và hoạt ảnh của item đó vào trong game
         '''
         self.animations = {
             'idle':[],
