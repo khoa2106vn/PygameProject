@@ -19,7 +19,105 @@ from Item import *
 from gachapon import Gachapon
 
 class Level:
+    '''
+    Class Level dùng để xử lý game play chính như tạo map, tạo quái, drop item, tạo phép, vẽ particles, tính toán sát thương cho quái và người chơi
+
+    Attributes:
+        self.game_paused (bool): Game có pause hay không
+        self.ui (UI): object ui
+        self.display_surface (pygame.display.get_surface): Surface màn hình
+        self.timer (Timer): object Timer dùng để đếm thời gian
+
+        #sprite group
+        self.visible_sprites (YSortCameraGroup): Group custom dùng để vẽ các vật thể dựa theo người chơi
+        self.obstacle_sprites (pygame.sprite.Group): Group dùng để nhóm các vật thể cản đường
+
+        #attack sprites
+        self.current_attack (Weapon): object vũ khí để xử lý phép và đòn đánh
+        self.attack_sprites (pygame.sprite.Group): Group các sprite đòn đánh
+        self.attackable_sprites (pygame.sprite.Group): Group các sprite có thể bị người chơi đánh
+
+        #sprite setup
+        self.layouts: lưu trữ các đường dẫn đến file csv dùng để tạo map cho game
+
+        self.graphics: lưu trữ các đường dẫn đến file hình ảnh dùng để tạo map cho game
+
+        #particles
+        self.animation_player (AnimationPlayer): Object dùng để chạy các animation hình ảnh cho sprite
+        self.magic_player (MagicPlayer): Object dùng để chạy các animation cho magic
+
+        #upgrade
+        self.upgrade (Upgrade): Object dùng để tạo trình nâng cấp cho người chơi
+
+
+        #monster spawn
+        self.difficulty (int): Độ khó
+        self.monster_spawn_radius (int): Bán kính spawn quái
+        self.monster_spawn_cd (int): cooldown spawn quái
+        self.monster_spawn_time (float): thời gian spawn quái lần cưới
+
+        self.screen_shake (int): độ mạnh rung màn hình
+        self.render_offset (list): độ lệch của rung màn hình
+
+        self.player_attacked (int): tick ghi nhận khi người chơi tấn công
+        self.hit_sound (pygame.mixer.Sound): Âm thanh khi người chơi bị tấn công 
+        self.paused_upgrade (bool): Kiểm tra người chơi có đang pause ở màn hình upgrade hay không
+        self.paused_gachapon (bool): Kiểm tra người chơi có đang pause ở màn hình gacha hay không
+        self.paused_ranking (bool): Kiểm tra người chơi có đang pause ở màn hình ranking hay không
+        self.game_start (bool): Kiểm tra game bắt đầu hay chưa
+        self.highscore = Highscore()
+        self.spawn_timer (int): Timer cooldown spawn quái
+    '''
     def __init__(self):
+        '''
+        Hàm khởi tạo cho class Level
+
+        Attributes:
+        self.game_paused (bool): Game có pause hay không
+        self.ui (UI): object ui
+        self.display_surface (pygame.display.get_surface): Surface màn hình
+        self.timer (Timer): object Timer dùng để đếm thời gian
+
+        #sprite group
+        self.visible_sprites (YSortCameraGroup): Group custom dùng để vẽ các vật thể dựa theo người chơi
+        self.obstacle_sprites (pygame.sprite.Group): Group dùng để nhóm các vật thể cản đường
+
+        #attack sprites
+        self.current_attack (Weapon): object vũ khí để xử lý phép và đòn đánh
+        self.attack_sprites (pygame.sprite.Group): Group các sprite đòn đánh
+        self.attackable_sprites (pygame.sprite.Group): Group các sprite có thể bị người chơi đánh
+
+        #sprite setup
+        self.layouts: lưu trữ các đường dẫn đến file csv dùng để tạo map cho game
+
+        self.graphics: lưu trữ các đường dẫn đến file hình ảnh dùng để tạo map cho game
+
+        #particles
+        self.animation_player (AnimationPlayer): Object dùng để chạy các animation hình ảnh cho sprite
+        self.magic_player (MagicPlayer): Object dùng để chạy các animation cho magic
+
+        #upgrade
+        self.upgrade (Upgrade): Object dùng để tạo trình nâng cấp cho người chơi
+
+
+        #monster spawn
+        self.difficulty (int): Độ khó
+        self.monster_spawn_radius (int): Bán kính spawn quái
+        self.monster_spawn_cd (int): cooldown spawn quái
+        self.monster_spawn_time (float): thời gian spawn quái lần cưới
+
+        self.screen_shake (int): độ mạnh rung màn hình
+        self.render_offset (list): độ lệch của rung màn hình
+
+        self.player_attacked (int): tick ghi nhận khi người chơi tấn công
+        self.hit_sound (pygame.mixer.Sound): Âm thanh khi người chơi bị tấn công 
+        self.paused_upgrade (bool): Kiểm tra người chơi có đang pause ở màn hình upgrade hay không
+        self.paused_gachapon (bool): Kiểm tra người chơi có đang pause ở màn hình gacha hay không
+        self.paused_ranking (bool): Kiểm tra người chơi có đang pause ở màn hình ranking hay không
+        self.game_start (bool): Kiểm tra game bắt đầu hay chưa
+        self.highscore = Highscore()
+        self.spawn_timer (int): Timer cooldown spawn quái
+        '''
         #get display surface
         self.game_paused = False
         self.ui = UI()
@@ -60,7 +158,7 @@ class Level:
         #monster spawn
         self.difficulty = 1 
         self.monster_spawn_radius = 500
-        self.monster_spawn_cd = 2600
+        self.monster_spawn_cd = 1600
         self.monster_spawn_time = 0
 
         self.screen_shake = 0
@@ -78,6 +176,13 @@ class Level:
         self.spawn_timer = 1000
 
     def create_magic(self, style, strength, cost):
+        '''
+        Hàm tạo hiệu ứng magic dựa theo input.
+        input:
+        style (str), strength (int), cost (int)
+        output:
+        sử dụng hàm magic_player
+        '''
         if style == 'heal':
             self.magic_player.heal(self.player, strength, cost, [self.visible_sprites])
         
@@ -85,11 +190,26 @@ class Level:
             self.magic_player.flame(self.player, cost, [self.visible_sprites, self.attack_sprites])
     
     def destroy_attack(self):
+        '''
+        Hàm huỷ hiệu ứng attack sau khi tạo
+        Nếu current_attack == True thì huỷ
+        '''
         if self.current_attack:
             self.current_attack.kill()
             self.current_attack = None
     
     def damage_player(self, amount, attack_type):
+        '''
+        Hàm gây sát thương cho người chơi
+        input:
+        amount (int): Lượng sát thương
+        attack_type (str): Loại tấn công
+        output:
+        Gây sát thương cho người chơi nếu player.vulnerable == True.
+        Trừ máu người chơi = amount
+        Tạo hiệu ứng particle đòn đánh của quái
+        Tạo rung màn hình
+        '''
         if self.player.vulnerable:
             self.player.health -= amount
             self.player.vulnerable = False
@@ -103,16 +223,38 @@ class Level:
             self.hit_sound.play()
            
     def trigger_death_particles(self, pos, particle_type):
+        '''
+        Tạo hiệu ứng particle chết cho quái, Tạo item rớt cho quái
+        input:
+        self.animation_player
+        pos (tuple x, y): vị trí chết
+        particle_type (str): Loại particle
+        Attributes:
+        chance (float): dùng random để xác định item drop
+        output:
+        Dùng pos để tạo particle ở vị trí chết bằng hàm create_particles 
+        Dùng chance để xác định item drop và tạo object item dựa trên toạ độ pos
+        '''
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
-        c = random.random()
-        if c < 0.1:
+        chance = random.random()
+        if chance < 0.1:
             Item('sushi', pos , [self.visible_sprites])
-        if c < 0.05:
+        if chance < 0.05:
             choice([lambda: Item('scroll_fire', pos, [self.visible_sprites]), lambda: Item('chest', pos, [self.visible_sprites])])()
 
 
 
     def player_attack_logic(self):
+        '''
+        Hàm logic đòn đánh của player
+        input:
+        self.attack_sprites
+        self.attackable_sprites
+        output:
+        Tìm các object được gán vào group attack_sprites, Kiểm tra nếu có va chạm giữa các attackable_sprites thì tạo va chạm giữa chúng.
+        Nếu attackable_sprites là grass thì tạo animation huỷ cho grass và xoá grass đi.
+        Nếu không thì gây damage cho attackable_sprite bằng hàm get_damage.
+        '''
         if self.attack_sprites:
             for attack_sprite in self.attack_sprites:
                 collision_sprites = pygame.sprite.spritecollide(attack_sprite, self.attackable_sprites, False)
@@ -163,7 +305,7 @@ class Level:
     def spawnrate(self):
         self.spawn_timer -= 1
         if self.spawn_timer < 0:
-            self.monster_spawn_cd = 2600 - (100* self.difficulty)
+            self.monster_spawn_cd = 1600 - (100* self.difficulty)
             self.spawn_timer = 1000
     def increase_difficulty(self, time):
         self.difficulty = float(time / 60)
@@ -183,14 +325,6 @@ class Level:
                         y = row_index * TILESIZE
                         if style == 'boundary':
                             Tile((x,y),[self.obstacle_sprites], 'invisible')
-                        # if style == 'grass':
-                        #     random_grass_image = choice(self.graphics['grass'])
-
-                        #     Tile((x,y),[self.visible_sprites,self.obstacle_sprites, self.attackable_sprites], 'grass', random_grass_image)
-                        #     pass
-                        # if style == 'object':
-                        #     surf = self.graphics['objects'][int(col)]
-                        #     Tile((x,y),[self.visible_sprites,self.obstacle_sprites], 'object', surf)
 
                         if style == 'entities':
                             if col == '394':
@@ -205,20 +339,7 @@ class Level:
                                     self.toggle_gachapon,
                                     self.timer
                                     )
-                            # else:
-                            #     if col == '390': monster_name = 'bamboo'
-                            #     elif col == '391': monster_name = 'spirit'
-                            #     elif col == '392': monster_name = 'raccoon'
-                            #     else: monster_name = 'squid'
-                            #     Enemy(
-                            #         monster_name, 
-                            #         (x,y), 
-                            #         [self.visible_sprites, self.attackable_sprites],
-                            #         self.obstacle_sprites,
-                            #         self.damage_player,
-                            #         self.trigger_death_particles,
-                            #         self.add_exp
-                            #     )
+
     def check_screen_shake(self):
         if self.screen_shake > 0:
             self.screen_shake -= 1
