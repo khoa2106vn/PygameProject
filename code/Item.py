@@ -27,6 +27,9 @@ class Item(Entity):
         self.pick_up_sound.set_volume(0.4)
 
     def import_graphics(self, name):
+        '''
+        hàm này dùng để đưa ảnh của item vào trong game
+        '''
         self.animations = {
             'idle':[],
         }
