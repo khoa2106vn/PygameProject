@@ -2,6 +2,13 @@ import pygame
 from math import sin
 
 class Entity(pygame.sprite.Sprite):
+    '''
+    class này dùng để tạo các thực thể có trong game
+    Attribute 
+    self.frame_index : cho frame_index mặc định bằng 0
+    self.animation_speed : độ nhanh hoạt ảnh của thực thể
+    self.direction : phương hướng
+    '''
     def __init__(self, groups):
         super().__init__(groups)
         self.frame_index = 0
@@ -9,6 +16,11 @@ class Entity(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
     
     def move(self,speed):
+        '''
+        Hàm này tạo các bước di chuyển và hitbox của thực thể
+        input : self.direction.magnitude, self.direction.x, self.direction.y
+        output : self.direction , self.hitbox.x, self.hitbox.y
+        '''
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
         
