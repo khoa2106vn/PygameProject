@@ -73,50 +73,50 @@ class Level:
         Hàm khởi tạo cho class Level
 
         Attributes:
-        self.game_paused (bool): Game có pause hay không
-        self.ui (UI): object ui
-        self.display_surface (pygame.display.get_surface): Surface màn hình
-        self.timer (Timer): object Timer dùng để đếm thời gian
+            self.game_paused (bool): Game có pause hay không
+            self.ui (UI): object ui
+            self.display_surface (pygame.display.get_surface): Surface màn hình
+            self.timer (Timer): object Timer dùng để đếm thời gian
 
-        #sprite group
-        self.visible_sprites (YSortCameraGroup): Group custom dùng để vẽ các vật thể dựa theo người chơi
-        self.obstacle_sprites (pygame.sprite.Group): Group dùng để nhóm các vật thể cản đường
+            #sprite group
+            self.visible_sprites (YSortCameraGroup): Group custom dùng để vẽ các vật thể dựa theo người chơi
+            self.obstacle_sprites (pygame.sprite.Group): Group dùng để nhóm các vật thể cản đường
 
-        #attack sprites
-        self.current_attack (Weapon): object vũ khí để xử lý phép và đòn đánh
-        self.attack_sprites (pygame.sprite.Group): Group các sprite đòn đánh
-        self.attackable_sprites (pygame.sprite.Group): Group các sprite có thể bị người chơi đánh
+            #attack sprites
+            self.current_attack (Weapon): object vũ khí để xử lý phép và đòn đánh
+            self.attack_sprites (pygame.sprite.Group): Group các sprite đòn đánh
+            self.attackable_sprites (pygame.sprite.Group): Group các sprite có thể bị người chơi đánh
 
-        #sprite setup
-        self.layouts: lưu trữ các đường dẫn đến file csv dùng để tạo map cho game
+            #sprite setup
+            self.layouts: lưu trữ các đường dẫn đến file csv dùng để tạo map cho game
 
-        self.graphics: lưu trữ các đường dẫn đến file hình ảnh dùng để tạo map cho game
+            self.graphics: lưu trữ các đường dẫn đến file hình ảnh dùng để tạo map cho game
 
-        #particles
-        self.animation_player (AnimationPlayer): Object dùng để chạy các animation hình ảnh cho sprite
-        self.magic_player (MagicPlayer): Object dùng để chạy các animation cho magic
+            #particles
+            self.animation_player (AnimationPlayer): Object dùng để chạy các animation hình ảnh cho sprite
+            self.magic_player (MagicPlayer): Object dùng để chạy các animation cho magic
 
-        #upgrade
-        self.upgrade (Upgrade): Object dùng để tạo trình nâng cấp cho người chơi
+            #upgrade
+            self.upgrade (Upgrade): Object dùng để tạo trình nâng cấp cho người chơi
 
 
-        #monster spawn
-        self.difficulty (int): Độ khó
-        self.monster_spawn_radius (int): Bán kính spawn quái
-        self.monster_spawn_cd (int): cooldown spawn quái
-        self.monster_spawn_time (float): thời gian spawn quái lần cưới
+            #monster spawn
+            self.difficulty (int): Độ khó
+            self.monster_spawn_radius (int): Bán kính spawn quái
+            self.monster_spawn_cd (int): cooldown spawn quái
+            self.monster_spawn_time (float): thời gian spawn quái lần cưới
 
-        self.screen_shake (int): độ mạnh rung màn hình
-        self.render_offset (list): độ lệch của rung màn hình
+            self.screen_shake (int): độ mạnh rung màn hình
+            self.render_offset (list): độ lệch của rung màn hình
 
-        self.player_attacked (int): tick ghi nhận khi người chơi tấn công
-        self.hit_sound (pygame.mixer.Sound): Âm thanh khi người chơi bị tấn công 
-        self.paused_upgrade (bool): Kiểm tra người chơi có đang pause ở màn hình upgrade hay không
-        self.paused_gachapon (bool): Kiểm tra người chơi có đang pause ở màn hình gacha hay không
-        self.paused_ranking (bool): Kiểm tra người chơi có đang pause ở màn hình ranking hay không
-        self.game_start (bool): Kiểm tra game bắt đầu hay chưa
-        self.highscore = Highscore()
-        self.spawn_timer (int): Timer cooldown spawn quái
+            self.player_attacked (int): tick ghi nhận khi người chơi tấn công
+            self.hit_sound (pygame.mixer.Sound): Âm thanh khi người chơi bị tấn công 
+            self.paused_upgrade (bool): Kiểm tra người chơi có đang pause ở màn hình upgrade hay không
+            self.paused_gachapon (bool): Kiểm tra người chơi có đang pause ở màn hình gacha hay không
+            self.paused_ranking (bool): Kiểm tra người chơi có đang pause ở màn hình ranking hay không
+            self.game_start (bool): Kiểm tra game bắt đầu hay chưa
+            self.highscore = Highscore()
+            self.spawn_timer (int): Timer cooldown spawn quái
         '''
         #get display surface
         self.game_paused = False
@@ -179,9 +179,9 @@ class Level:
         '''
         Hàm tạo hiệu ứng magic dựa theo input.
         input:
-        style (str), strength (int), cost (int)
+            style (str), strength (int), cost (int).
         output:
-        sử dụng hàm magic_player
+            sử dụng hàm magic_player.
         '''
         if style == 'heal':
             self.magic_player.heal(self.player, strength, cost, [self.visible_sprites])
@@ -191,8 +191,8 @@ class Level:
     
     def destroy_attack(self):
         '''
-        Hàm huỷ hiệu ứng attack sau khi tạo
-        Nếu current_attack == True thì huỷ
+        Hàm huỷ hiệu ứng attack sau khi tạo.
+        Nếu current_attack == True thì huỷ.
         '''
         if self.current_attack:
             self.current_attack.kill()
@@ -200,15 +200,15 @@ class Level:
     
     def damage_player(self, amount, attack_type):
         '''
-        Hàm gây sát thương cho người chơi
+        Hàm gây sát thương cho người chơi.
         input:
-        amount (int): Lượng sát thương
-        attack_type (str): Loại tấn công
+            amount (int): Lượng sát thương.
+            attack_type (str): Loại tấn công.
         output:
-        Gây sát thương cho người chơi nếu player.vulnerable == True.
-        Trừ máu người chơi = amount
-        Tạo hiệu ứng particle đòn đánh của quái
-        Tạo rung màn hình
+            Gây sát thương cho người chơi nếu player.vulnerable == True.
+            Trừ máu người chơi = amount.
+            Tạo hiệu ứng particle đòn đánh của quái.
+            Tạo rung màn hình.
         '''
         if self.player.vulnerable:
             self.player.health -= amount
@@ -224,16 +224,16 @@ class Level:
            
     def trigger_death_particles(self, pos, particle_type):
         '''
-        Tạo hiệu ứng particle chết cho quái, Tạo item rớt cho quái
+        Tạo hiệu ứng particle chết cho quái, Tạo item rớt cho quái.
         input:
-        self.animation_player
-        pos (tuple x, y): vị trí chết
-        particle_type (str): Loại particle
+            self.animation_player
+            pos (tuple x, y): vị trí chết.
+            particle_type (str): Loại particle.
         Attributes:
-        chance (float): dùng random để xác định item drop
-        output:
-        Dùng pos để tạo particle ở vị trí chết bằng hàm create_particles 
-        Dùng chance để xác định item drop và tạo object item dựa trên toạ độ pos
+            chance (float): dùng random để xác định item drop.
+            output:
+            Dùng pos để tạo particle ở vị trí chết bằng hàm create_particles .
+            Dùng chance để xác định item drop và tạo object item dựa trên toạ độ pos.
         '''
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
         chance = random.random()
@@ -248,12 +248,12 @@ class Level:
         '''
         Hàm logic đòn đánh của player
         input:
-        self.attack_sprites
-        self.attackable_sprites
+            self.attack_sprites
+            self.attackable_sprites
         output:
-        Tìm các object được gán vào group attack_sprites, Kiểm tra nếu có va chạm giữa các attackable_sprites thì tạo va chạm giữa chúng.
-        Nếu attackable_sprites là grass thì tạo animation huỷ cho grass và xoá grass đi.
-        Nếu không thì gây damage cho attackable_sprite bằng hàm get_damage.
+            Tìm các object được gán vào group attack_sprites, Kiểm tra nếu có va chạm giữa các attackable_sprites thì tạo va chạm giữa chúng.
+            Nếu attackable_sprites là grass thì tạo animation huỷ cho grass và xoá grass đi.
+            Nếu không thì gây damage cho attackable_sprite bằng hàm get_damage.
         '''
         if self.attack_sprites:
             for attack_sprite in self.attack_sprites:
@@ -270,6 +270,22 @@ class Level:
                             target_sprite.get_damage(self.player, attack_sprite.sprite_type)
 
     def spawn_monster(self):
+        '''
+        Hàm tạo quái vật random bằng cách tính toán thời gian hiện tại - thời gian quái spawn lần cuối > self.monster_spawn_cd.
+        Attributes:
+            current_time (pygame.time): Lấy thời gian hiện tại
+            x,y (int): toạ độ dùng để tạo quái random * TILESIZE (pixel của sprite)
+            enemy_vec (Vector2): Vector của quái
+            player_vec (Vector2): Vector của người chơi
+            distance (int): khoảng cách giữa người chơi và quái
+        input:
+            self.monster_spawn_time: thời gian spawn quái lần cuối
+            self.monster_spawn_cd: cooldown spawn quái
+            self.player
+        output:
+            Tạo object Enemy với các group visible_sprites, attackable_sprites.
+
+        '''
         current_time = pygame.time.get_ticks()
         if current_time - self.monster_spawn_time >= self.monster_spawn_cd:
     
@@ -303,20 +319,46 @@ class Level:
                 )
 
     def spawnrate(self):
+        '''
+        Hàm dùng để giảm cooldown spawn quái dựa trên độ khó của game theo biến spawn_timer.
+        input:
+            self.spawn_timer (int): Giá trị sẽ giảm theo từng tick để xác định lúc giảm thời gian cooldown spawn quái.
+        output:
+            chỉnh sửa self.spawn_cd tuỳ theo self.spawn_timer
+        '''
         self.spawn_timer -= 1
         if self.spawn_timer < 0:
             self.monster_spawn_cd = 1600 - (100* self.difficulty)
             self.spawn_timer = 1000
+
     def increase_difficulty(self, time):
+        '''
+        Hàm tăng độ khó cho game dựa trên thời gian.
+        input:
+            time
+            self.difficulty
+        output:
+            Thay đổi self.difficulty dựa trên time.
+        '''
         self.difficulty = float(time / 60)
         if self.difficulty < 1:
             self.difficulty = 1
         
 
     def create_attack(self):
+        '''
+        Hàm tạo object Weapon, dùng cho các đòn đánh và phép.
+        '''
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
 
     def create_map(self):
+        '''
+        Hàm tạo map bằng cách lọc qua các file csv trong self.layouts. Tạo các object tại x và y tương ứng với style.
+        input:
+            self.layouts
+        output:
+            Tạo các object tại x và y tương ứng với style.
+        '''
         for style, layout in self.layouts.items():
             for row_index,row in enumerate(layout):
                 for col_index, col in enumerate(row):
@@ -341,6 +383,15 @@ class Level:
                                     )
 
     def check_screen_shake(self):
+        '''
+        Hàm dùng để điều chỉnh các biến số liên quan đến rung màn mình để tính toán.
+        input:
+            self.screen_shake (int): 
+            self.render_offset (tuple):
+            self.player_attacked (int): đếm ngược tick người chơi tấn công (đang thử nghiệm chưa dùng).
+        output:
+            Điều chỉnh các biến số liên quan đến rung màn mình để tính toán.
+        '''
         if self.screen_shake > 0:
             self.screen_shake -= 1
 
@@ -356,6 +407,10 @@ class Level:
 
 
     def run(self):
+        '''
+        Hàm tạo vòng lặp cho level, chạy hầu hết các method của Level.
+
+        '''
         self.visible_sprites.custom_draw(self.player, self.render_offset, self.player_attacked)
         if self.timer.started == True:
             self.ui.display(self.player, self.difficulty)
@@ -392,26 +447,56 @@ class Level:
 
             
     def add_exp(self, amount):
+        '''
+        Hàm cộng exp cho người chơi.
+        input:
+            self.player.exp
+        output:
+            Cộng exp theo amount.
+        '''
         self.player.exp += amount
     
     def toggle_menu(self):
+        '''
+        Hàm điều chỉnh biến số game_paused, paused_upgrade.
+        '''
         self.game_paused = not self.game_paused
         self.paused_upgrade = not self.paused_upgrade
     
     def toggle_ranking(self):
+        '''
+        Hàm điều chỉnh biến số game_paused, paused_ranking.
+        '''
         self.game_paused = not self.game_paused
         self.paused_ranking = not self.paused_ranking
 
     def toggle_gachapon(self):
+        '''
+        Hàm điều chỉnh biến số paused_gachapon và tạo ra object Gachapon mới mỗi khi người chơi nhặt hòm may mắn.
+        '''
         self.gachapon = Gachapon(self.player)
         self.paused_gachapon = True
 
-    def menu_start(self):
-        self.game_paused = True
-
 class YSortCameraGroup(pygame.sprite.Group):
+    '''
+    Class dùng để nhóm các vật thể cần vẽ lên màn hình và theo thứ tự ưu tiên hiển thị toạ độ y lớn hơn.
+    Thừa kế class pygame.sprite.Group
+    '''
     def __init__(self):
+        '''
+        Hàm khởi tạo cho class YSortCameraGroup
+        Attributes:
+            self.display_surface (pygame.Surface): Surface màn hình game
+            self.half_width (int): phân nửa động rộng màn hình
+            self.half_height (int): phân nửa độ cao màn hình
+            self.offset (Vector2): vector độ chênh lệch 
 
+            #floor creation
+            self.floor_sur (pygame.Surface): Surface phần hình ảnh màn chơi
+            self.floor_rect (pygame.Rect): Rect của hình ảnh màn chơi
+            self.sparks (Spark): tỉnh năng spark đang thử nghiệm
+            self.s (pygame.Surface): s = shadow, dùng để vẽ bóng cho game
+        '''
         #setup
         super().__init__()
         #get display surface
@@ -429,6 +514,21 @@ class YSortCameraGroup(pygame.sprite.Group):
 
 
     def custom_draw(self, player, render_offset, player_attacked):
+        '''
+        Hàm vẽ các visible_sprites theo offset để tạo hiệu ứng camera di chuyển theo người chơi.
+        Đồng thời xử lý bóng của các visible_sprites lên màn hình.
+        input:
+            player (Player): Object người chơi
+            render_offset (list): các thông số dùng để rung màn hình
+            player_attacked (int): Biến thử nghiệm, chưa dùng tới
+        output:
+        Blit các surface lên màn hình game:
+            Surface các visible_sprites
+            Surface bóng của visible_sprites
+        Tính năng tối ưu hoá:
+            Không hiển thị hình ảnh nếu khoảng cách giữa vật thể và người chơi > 800
+
+        '''
         #get offset from player
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
@@ -470,7 +570,7 @@ class YSortCameraGroup(pygame.sprite.Group):
                 self.display_surface.blit(sprite.image, offset_position + render_offset)
     
         
-
+        #Thử nghiệm
         for i, spark in sorted(enumerate(self.sparks), reverse=True):
                 spark.move(1)
                 spark.draw(self.display_surface)
@@ -480,6 +580,9 @@ class YSortCameraGroup(pygame.sprite.Group):
 
 
     def enemy_update(self, player):
+        '''
+        Hàm lọc qua các visible_sprites là enemy và chạy hàm enemy_update
+        '''
         enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']
         for sprite in enemy_sprites:
             sprite.enemy_update(player)
