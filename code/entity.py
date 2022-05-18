@@ -31,6 +31,11 @@ class Entity(pygame.sprite.Sprite):
         self.rect.center = self.hitbox.center
 
     def collision(self, direction):
+        '''
+        Hàm này điều chỉnh collision của các thực thể trong game
+            input : direction == 'horizontal' và direction == 'vertical'
+            output : self.direction và self.hitbox
+        '''
         if direction == 'horizontal':
             for sprite in self.obstacle_sprites:
                 if sprite.hitbox.colliderect(self.hitbox):
@@ -59,6 +64,11 @@ class Entity(pygame.sprite.Sprite):
                     if self.direction.y < 0: #go up
                         self.hitbox.top = sprite.hitbox.bottom
     def wave_value(self):
+        '''
+        Hàm này dùng để tạo tương tác giữa player và thực thể khi bị đánh trúng
+            input : value 
+            output : 255 hoặc 0
+        '''
         value = sin(pygame.time.get_ticks())
         if value >= 0: 
             return 255
