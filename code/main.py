@@ -78,8 +78,9 @@ class Game:
         self.blink_surf = next(self.blink_surfaces)
         pygame.time.set_timer(BLINK_EVENT, 800)
         self.instruct_image = pygame.image.load('../graphics/instruction/instruction.png')
-        self.instruct_image = pygame.transform.scale(self.instruct_image, (853,200))
-        self.instruct_rect = self.instruct_image.get_rect(center = (self.screen_rect.center[0] - 10, self.screen_rect.center[1] + 250))
+        self.instruct_image = pygame.transform.scale(self.instruct_image, (1067,250))
+        self.instruct_image.set_colorkey((22,24,52))
+        self.instruct_rect = self.instruct_image.get_rect(center = (self.screen_rect.center[0] - 10, self.screen_rect.center[1] - 160))
 
     def intro(self):
         '''

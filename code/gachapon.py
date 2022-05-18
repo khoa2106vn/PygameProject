@@ -4,7 +4,72 @@ from settings import *
 from random import randint
 
 class Gachapon:
+    '''
+    Class tạo object Gachapon.
+    Attributes:
+        #general setup
+        self.display_surface (pygame.Surface): Surface màn hình game
+        self.player (Player): người chơi từ input level
+
+        self.font (pygame.font): font của game
+        self.display_gacha (bool): Biến kiểm tra gacha có đang bật hay không
+        self.rolling (bool): Biến kiểm tra gacha có đang quay hay không
+        self.give (bool): biến kiểm tra có khả năng trao đồ hay không
+        self.done (bool): biến kiểm tra gacha đã hoàn thành hay chưa
+
+        ***item = các mục được tạo
+
+        #item creation
+        self.height (int): độ cao item
+        self.width  (int): độ dài item
+        self.rollable_items (list): list các item có thể roll
+        self.attribute_nr (int): số item có thể roll
+        self.create_items(): hàm tạo item dựa trên các item có thể roll
+        self.ran_item (int): random thời gian roll item
+        self.timer (int): thời gian đệm sau khi roll xong item
+
+        #selection system
+        self.selection_index (int): index item hiện tại
+        self.selection_time (time): thời gian select item
+        self.can_move (bool): biến kiểm tra khả năng di chuyển
+        self.move_fx (pygame.mixer.Sound): âm thanh di chuyển
+        self.done_fx (pygame.mixer.Sound): âm thanh hoàn thành gacha
+
+    '''
     def __init__(self, player):
+        '''
+        Hàm khởi tạo cho class Gachapon.
+        input:
+            player (Player): người chơi
+         Attributes:
+            #general setup
+            self.display_surface (pygame.Surface): Surface màn hình game
+            self.player (Player): người chơi từ input level
+
+            self.font (pygame.font): font của game
+            self.display_gacha (bool): Biến kiểm tra gacha có đang bật hay không
+            self.rolling (bool): Biến kiểm tra gacha có đang quay hay không
+            self.give (bool): biến kiểm tra có khả năng trao đồ hay không
+            self.done (bool): biến kiểm tra gacha đã hoàn thành hay chưa
+
+            ***item = các mục được tạo
+
+            #item creation
+            self.height (int): độ cao item
+            self.width  (int): độ dài item
+            self.rollable_items (list): list các item có thể roll
+            self.attribute_nr (int): số item có thể roll
+            self.create_items(): hàm tạo item dựa trên các item có thể roll
+            self.ran_item (int): random thời gian roll item
+            self.timer (int): thời gian đệm sau khi roll xong item
+
+            #selection system
+            self.selection_index (int): index item hiện tại
+            self.selection_time (time): thời gian select item
+            self.can_move (bool): biến kiểm tra khả năng di chuyển
+            self.move_fx (pygame.mixer.Sound): âm thanh di chuyển
+            self.done_fx (pygame.mixer.Sound): âm thanh hoàn thành gacha
+        '''
 
         #general setup
         self.display_surface = pygame.display.get_surface()
@@ -36,6 +101,18 @@ class Gachapon:
 
 
     def rolling_item(self):
+        '''
+        Hàm roll item cho Gachapon.
+        input:
+            self.ran_item (int): random thời gian roll item
+            self.rolling (bool): Biến kiểm tra gacha có đang quay hay không
+            self.can_move (bool): biến kiểm tra khả năng di chuyển
+            self.selection_index (int): index item hiện tại
+            self.attribute_nr (int): số item có thể roll
+        output:
+            Nếu hoàn thành lấy index item roll ra thì set self.rolling = False
+
+        '''
         if self.ran_item > 0:
             self.rolling = True
             self.ran_item -= 1
@@ -53,6 +130,15 @@ class Gachapon:
         else: self.rolling = False
     
     def give_item(self):
+        '''
+        Hàm trao item cho người chơi
+        Attributes:
+            self.gift
+        output:
+            Tạo biến gift = item được chọn
+            Tăng chỉ số cho người chơi dựa trên tên item
+            set self.give = False
+        '''
         self.gift = self.rollable_items[self.selection_index]
         if  self.gift == 'beef':
             self.player.stats['health'] += 20
@@ -67,6 +153,16 @@ class Gachapon:
 
 
     def create_items(self):
+        '''
+        Hàm tạo các phần tử trong list item có thể roll
+        Attributes:
+            self.item_list (list): list các item (ui)
+            full_width (int): độ dài màn hình
+            increment (int): khoảng cách giữa các phần tử
+            left (int): vị trí các phần tử
+            item (Item): tạo object item
+        output: thêm các item vào list tương ứng
+        '''
         self.item_list = []
 
         for item, index in enumerate(range(len(self.rollable_items))):
@@ -83,12 +179,18 @@ class Gachapon:
             self.item_list.append(item)
 
     def selection_cooldown(self):
+        '''
+        Hàm cooldown khi roll các phần tử.
+        '''
         if not self.can_move:
             current_time = pygame.time.get_ticks()
             if current_time - self.selection_time >= 150:
                 self.can_move = True
 
     def display(self):
+        '''
+        Hàm thực thi các method của class Gachapon, đồng thời hiển thị các phần tử
+        '''
         self.rolling_item()
         if not self.rolling and self.give:
             self.give_item()
@@ -104,21 +206,47 @@ class Gachapon:
             name = self.rollable_items[index]
             item.display(self.display_surface, self.selection_index, name)
 
-    def isdone(self):
-        return not self.display_gacha
 
 class Item:
+    '''
+    Class Item chuyên dùng để tạo các phần tử cho class Gachapon.
+    Attributes:
+        self.rect (pygame.Rect): rect item
+        self.index (int): index item được chọn.
+        self.font (pygame.font): font chữ chính.
+
+    '''
     def __init__(self, l, t, w, h, index, font):
+        '''
+        Hàm khởi tạo cho class Item (Gachapon)
+        input:
+            l (int): vị trí left
+            t (int): vị trí top
+            w (int): độ rộng
+            h (int): độ cao
+            index (int): index của item
+            font (pygame.font): font chữ chính
+        Attributes:
+            self.rect (pygame.Rect): rect item
+            self.index (int): index item được chọn.
+            self.font (pygame.font): font chữ chính.
+
+        '''
         self.rect = pygame.Rect(l, t, w, h)
         self.index = index
         self.font = font
-        self.up = pygame.mixer.Sound('../audio/Gold1.wav')
-        self.up.set_volume(0.3)
-        self.c_up = pygame.mixer.Sound('../audio/Menu12.wav')
-        self.c_up.set_volume(0.3)
-
 
     def display_names(self, surface, name, selected):
+        '''
+        Hàm hiển thị tên của phần tử, thay đổi màu chữ tuỳ theo trang thái chọn.
+        input:
+            surface (pygame.Surface): Surface màn hình game
+            name (str): tên phần tử
+            selected (bool): trạng thái chọn
+        Attributes:
+            color (color): màu chữ
+            name (str): tên phần tử
+        '''
         color = TEXT_COLOR_SELECTED if selected else TEXT_COLOR
         name = name.replace('_', ' ')
 
@@ -131,6 +259,17 @@ class Item:
         surface.blit(title_surf, title_rect)
 
     def display_images(self, surface, name, selected):
+        ''' 
+        Hàm hiển thị hình ảnh của phần tử
+        input:
+            surface (pygame.Surface): Surface màn hình game
+            name (str): tên phần tử
+            selected (bool): trạng thái chọn
+        Attributes:
+            full_path (path): đường dẫn của hình ảnh item
+            image_surf (pygame.Surface): surface của hình ảnh item
+        '''
+
         #image
         full_path = '../graphics/item/' + name +'/idle/0.png'
         image_surf = pygame.image.load(full_path).convert_alpha()
@@ -145,6 +284,9 @@ class Item:
     
 
     def display(self, surface, selection_num, name):
+        '''
+        Hàm thực thi các method của class Item.
+        '''
         if self.index == selection_num:
             pygame.draw.rect(surface, UPGRADE_BG_COLOR_SELECTED, self.rect)
             pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 4)
