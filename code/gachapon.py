@@ -206,6 +206,8 @@ class Gachapon:
             name = self.rollable_items[index]
             item.display(self.display_surface, self.selection_index, name)
 
+    def isdone(self):
+        return not self.display_gacha
 
 class Item:
     '''
