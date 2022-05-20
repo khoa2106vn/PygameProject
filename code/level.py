@@ -237,9 +237,9 @@ class Level:
         '''
         self.animation_player.create_particles(particle_type, pos, [self.visible_sprites])
         chance = random.random()
-        if chance < 0.1:
+        if chance < 0.2:
             Item('sushi', pos , [self.visible_sprites])
-        if chance < 0.1:
+        if chance < 0.2:
             choice([lambda: Item('scroll_fire', pos, [self.visible_sprites]), lambda: Item('chest', pos, [self.visible_sprites])])()
 
 
