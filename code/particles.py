@@ -47,6 +47,8 @@ class AnimationPlayer:
     def reflect_images(self, frames):
         '''
         Hàm tạo các hình ảnh lặp lại
+            input : frames
+            output : new_frames
         '''
         new_frames = []
         for frame in frames:
@@ -57,6 +59,8 @@ class AnimationPlayer:
     def create_grass_particles(self, pos, groups):
         '''
         Hàm tạo hoạt ảnh của grass
+            input : animation_frames 
+            output : ParticleEffect
         '''
         animation_frames = choice(self.frames['leaf'])
         ParticleEffect(pos, animation_frames, groups)
@@ -64,6 +68,8 @@ class AnimationPlayer:
     def create_particles(self, animation_type, pos, groups):
         '''
         Hàm tạo hoạt ảnh của các frames
+            input : animation_frames
+            output : ParticleEffect
         '''
         animation_frames = self.frames[animation_type]
         ParticleEffect(pos, animation_frames, groups)
@@ -91,6 +97,8 @@ class ParticleEffect(pygame.sprite.Sprite):
     def animate(self):
         '''
         Hàm tạo các hoạt ảnh
+            input : self.frame_index
+            output : self.kill() hoặc self.image
         '''
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.frames):

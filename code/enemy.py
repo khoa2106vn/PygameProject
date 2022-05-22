@@ -146,6 +146,8 @@ class Enemy(Entity):
     def animate(self):
         '''
         Hàm này dùng để tạo hoạt ảnh cho quái 
+            input : self.frame_index, self.status, self.vulnerable
+            output : self.can_attack, self.frame_index, self.wave_value
         '''
         animation = self.animations[self.status]
 
@@ -169,7 +171,10 @@ class Enemy(Entity):
 
     def cooldowns(self):
         '''
-        Hàm này tạo cooldown cho các đòn tấn công của quái hoặc khi quái bị tấn công 
+        Hàm này tạo cooldown cho các đòn tấn công của quái hoặc khi quái bị tấn công
+            input : current_time, self.can_attack, self.attack_cooldown, self.vulnerable
+            output : self.can_attack = True
+                     self.vulnerable = True
         '''
         current_time = pygame.time.get_ticks()
         if not self.can_attack:

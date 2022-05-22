@@ -251,6 +251,8 @@ class Item:
     def display(self, surface, selection_num, name, value, max_value, cost, current_values):
         '''
         Hàm này dùng để vẽ ra màn hình các thuộc tính của upgrade như name, cost, max_value, current_value
+          input : self.index
+          output : bắt đầu vẽ ra hình ảnh các thuộc tính của upgrade vào màn hình game
         '''
         if self.index == selection_num:
             pygame.draw.rect(surface, UPGRADE_BG_COLOR_SELECTED, self.rect)
